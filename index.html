@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Steady</title>
+<meta name="description" content="A private, offline companion for riding out anxious urges.">
+<meta name="theme-color" content="#eef2ee">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+:root {
+  --bg: #f7f5f0; --bg2: #eef2ee; --card: rgba(255,255,255,.8);
+  --ink: #2e3a36; --muted: #5f6c67; --line: #e7e4dc;
+  --accent: #6f9a8d; --accent-deep: #4f7d70; --accent-soft: #e6efeb; --link: #3f675b;
+  --warm: #b07a5a; --warm-ink: #8a5a3c; --warm-soft: #f7ece4;
+  --sos-a: #6a978a; --sos-b: #4a786b; --on-accent: #ffffff;
+  --nav: rgba(255,255,255,.78);
+  --shadow: 0 1px 2px rgba(46,58,54,.04), 0 8px 24px rgba(46,58,54,.06);
+  --serif: Georgia, "Noto Serif", serif;
+  --sans: "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #141a18; --bg2: #18201d; --card: rgba(30,38,35,.85);
+  --ink: #e6ece9; --muted: #9aa6a1; --line: #2a3330;
+  --accent: #8fbcae; --accent-deep: #b4d8cc; --accent-soft: #23332e; --link: #b4d8cc;
+  --warm: #e0a882; --warm-ink: #e0a882; --warm-soft: #3a2c22;
+  --sos-a: #8fbcae; --sos-b: #b4d8cc; --on-accent: #141a18;
+  --nav: rgba(24,32,29,.82);
+  --shadow: 0 1px 2px rgba(0,0,0,.2), 0 8px 24px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #141a18; --bg2: #18201d; --card: rgba(30,38,35,.85);
+    --ink: #e6ece9; --muted: #9aa6a1; --line: #2a3330;
+    --accent: #8fbcae; --accent-deep: #b4d8cc; --accent-soft: #23332e; --link: #b4d8cc;
+    --warm: #e0a882; --warm-ink: #e0a882; --warm-soft: #3a2c22;
+    --sos-a: #8fbcae; --sos-b: #b4d8cc; --on-accent: #141a18;
+    --nav: rgba(24,32,29,.82);
+    --shadow: 0 1px 2px rgba(0,0,0,.2), 0 8px 24px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { scroll-padding-top: 16px; scroll-padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+body {
+  background: linear-gradient(180deg, var(--bg2) 0, var(--bg) 320px) no-repeat, var(--bg);
+  background-color: var(--bg);
+  color: var(--ink); font: 1rem/1.6 var(--sans); min-height: 100vh;
+  -webkit-text-size-adjust: 100%; overflow-wrap: anywhere;
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.25; margin: 0 0 .5rem; }
+h1 { font-size: 1.5rem; } h2 { font-size: 1.3rem; } h3 { font-size: 1.1rem; }
+p { margin: 0 0 .75rem; }
+a { color: var(--link); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+.label { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 .6rem; font-weight: 600; font-family: var(--sans); }
+.muted { color: var(--muted); }
+.small { font-size: .9rem; }
+
+header.top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 18px 16px 6px; max-width: 560px; margin: 0 auto; }
+header.top .brand { font-family: var(--serif); font-size: 1.4rem; }
+header.top .date { font-size: .85rem; color: var(--muted); }
+.iconbtn { min-width: 44px; min-height: 44px; border: 0; background: transparent; color: var(--ink); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.iconbtn svg { width: 24px; height: 24px; }
+
+main.wrap { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+main.enter { animation: rise .3s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+
+.card { background: var(--card); border-radius: 22px; padding: 20px; box-shadow: var(--shadow); margin: 14px 0; }
+.card > :last-child { margin-bottom: 0; }
+.banner { border-radius: 22px; padding: 16px 20px; margin: 14px 0; background: var(--warm-soft); color: var(--ink); border-left: 4px solid var(--warm); }
+.banner strong { color: var(--warm-ink); }
+.notice { background: var(--accent-soft); border-radius: 16px; padding: 12px 16px; margin: 14px 0; font-size: .9rem; }
+.quote { font-family: var(--serif); font-size: 1.35rem; line-height: 1.4; margin: 0; }
+.greet { font-family: var(--serif); font-size: 1.1rem; margin: 10px 0 0; color: var(--muted); }
+
+button { font: inherit; }
+.btn { min-height: 44px; padding: 10px 22px; border-radius: 999px; border: 0; background: var(--accent-deep); color: var(--on-accent); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; text-decoration: none; }
+.btn.ghost { background: transparent; color: var(--link); box-shadow: inset 0 0 0 1px var(--accent); }
+.btn.text { background: transparent; color: var(--link); padding: 10px 8px; }
+.btn.danger { background: transparent; color: var(--warm-ink); box-shadow: inset 0 0 0 1px var(--warm); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.block { width: 100%; }
+.row { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.row.end { justify-content: flex-end; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 14px; }
+
+.sos { width: 100%; border: 0; border-radius: 22px; padding: 26px 22px; text-align: left; cursor: pointer; color: var(--on-accent); background: linear-gradient(135deg, var(--sos-a), var(--sos-b)); box-shadow: var(--shadow); margin: 14px 0; display: block; }
+.sos .t { display: block; font-family: var(--serif); font-size: 1.45rem; line-height: 1.3; font-weight: 700; }
+.sos .s { display: block; margin-top: 6px; font-size: 1.05rem; font-weight: 600; }
+.sos.pulse { animation: pulse 1.2s ease-in-out 3; }
+@keyframes pulse { 50% { transform: scale(1.025); box-shadow: 0 0 0 8px var(--accent-soft), var(--shadow); } }
+
+label.f { display: block; font-size: .9rem; margin: 12px 0 4px; color: var(--muted); }
+input[type="text"], input[type="date"], input[type="time"], input[type="number"], input[type="tel"], textarea, select {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; min-height: 44px;
+}
+textarea { min-height: 88px; resize: vertical; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+ul.plain, ol.plain { list-style: none; padding: 0; margin: 0; }
+ol.rules { padding-left: 1.4rem; margin: 0; }
+ol.rules li { padding: 6px 0; }
+ul.bul { margin: 0; padding-left: 1.2rem; }
+ul.bul li { margin: 4px 0; }
+
+.check { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; cursor: pointer; border-bottom: 1px solid var(--line); }
+.check:last-child { border-bottom: 0; }
+.check .box { flex: none; width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px var(--accent); display: inline-flex; align-items: center; justify-content: center; color: transparent; }
+.check .box svg { width: 16px; height: 16px; }
+.check input:checked + .box { background: var(--accent-deep); box-shadow: none; color: var(--on-accent); }
+.check input:checked ~ .txt { text-decoration: line-through; opacity: .6; }
+.check input:focus-visible + .box { outline: 3px solid var(--accent); outline-offset: 2px; }
+details.how { margin: 0 0 8px 34px; font-size: .9rem; color: var(--muted); }
+details.how summary { cursor: pointer; min-height: 32px; color: var(--link); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+.stat { background: var(--accent-soft); border-radius: 18px; padding: 14px; }
+.stat .v { font-family: var(--serif); font-size: 1.9rem; line-height: 1.1; }
+.stat .k { font-size: .85rem; color: var(--ink); margin-top: 4px; }
+.stat .b { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+.worry { border-top: 1px solid var(--line); padding: 12px 0; }
+.worry:first-child { border-top: 0; }
+.worry .when { font-size: .85rem; color: var(--muted); }
+.due { background: var(--warm-soft); border-radius: 16px; padding: 12px 14px; margin-top: 8px; }
+
+nav.tabs { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: 536px; margin: 0 auto; z-index: 10; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; padding: 6px; border-radius: 24px; background: var(--nav); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+nav.tabs a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; min-height: 52px; border-radius: 18px; color: var(--muted); text-decoration: none; font-size: .72rem; font-weight: 600; text-align: center; }
+nav.tabs a svg { width: 22px; height: 22px; }
+nav.tabs a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); }
+
+.scale { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px; margin: 14px 0; }
+.scale button { min-height: 48px; border-radius: 14px; border: 0; background: var(--accent-soft); color: var(--ink); font-weight: 700; font-size: 1.05rem; cursor: pointer; }
+.scale button[aria-pressed="true"] { background: var(--accent-deep); color: var(--on-accent); }
+.progress { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 6px 0 18px; }
+.progress span { height: 6px; border-radius: 3px; background: var(--line); }
+.progress span.on { background: var(--accent); }
+.sosview { min-height: 100vh; padding: 16px 16px 40px; max-width: 560px; margin: 0 auto; }
+.sosview .bar { display: flex; align-items: center; justify-content: space-between; }
+.big { font-family: var(--serif); font-size: 1.6rem; line-height: 1.35; margin: 8px 0 14px; }
+.orbwrap { display: flex; align-items: center; justify-content: center; height: 300px; }
+.orb { width: 240px; height: 240px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 42% 38%, #ffffff 0, #e6efeb 45%, #c9ddd6 100%); box-shadow: 0 0 0 14px rgba(111,154,141,.12), 0 0 0 30px rgba(111,154,141,.07); transform: scale(.62); transition-property: transform; transition-timing-function: ease-in-out; }
+.orb span { font-family: var(--serif); font-size: 1.6rem; color: #2e3a36; }
+.timer { font-family: var(--serif); font-size: 2.4rem; text-align: center; margin: 6px 0; font-variant-numeric: tabular-nums; }
+.chips { display: grid; gap: 8px; margin: 12px 0; }
+.chip { text-align: left; min-height: 48px; padding: 10px 16px; border-radius: 16px; border: 0; background: var(--accent-soft); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent-deep); }
+.safety { background: var(--warm-soft); border-radius: 18px; padding: 14px 16px; margin: 14px 0; }
+.safety strong { display: block; margin-bottom: 4px; color: var(--warm-ink); }
+
+.num { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); min-height: 48px; }
+.num:last-child { border-bottom: 0; }
+.num a { font-weight: 700; white-space: nowrap; text-decoration: none; padding: 8px 14px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); min-height: 44px; display: inline-flex; align-items: center; }
+
+.habit { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.habit:last-child { border-bottom: 0; }
+.boxes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.boxes button { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--accent-soft); color: var(--on-accent); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.boxes button svg { width: 20px; height: 20px; }
+.boxes button[aria-pressed="true"] { background: var(--accent-deep); }
+
+.entry { border-top: 1px solid var(--line); padding: 10px 0; }
+.entry:first-child { border-top: 0; }
+.entry summary { cursor: pointer; min-height: 44px; display: flex; flex-direction: column; justify-content: center; }
+.entry dl { margin: 8px 0; }
+.entry dt { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+.entry dd { margin: 0; }
+
+.ed { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.ed .row { flex-wrap: nowrap; }
+.ed .tools { display: flex; gap: 2px; flex: none; }
+.ed .tools .iconbtn svg { width: 20px; height: 20px; }
+.setrow { margin-bottom: 4px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 0; background: var(--accent-soft); color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-deep); color: var(--on-accent); }
+.ob { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; max-width: 560px; margin: 0 auto; padding: 24px 16px 40px; }
+.dots { display: flex; gap: 6px; justify-content: center; margin: 18px 0 0; }
+.dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots span.on { background: var(--accent-deep); }
+.pack { width: 100%; text-align: left; border: 0; border-radius: 18px; padding: 14px 16px; margin: 8px 0; background: var(--accent-soft); color: var(--ink); cursor: pointer; min-height: 56px; }
+.pack[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent-deep); }
+.pack strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.1rem; }
+.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 30; max-width: calc(100vw - 32px); font-size: .95rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .orb { transform: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="live" class="vh" aria-live="polite"></div>
+<script>
+(function () {
+'use strict';
+var VERSION = '1.0.0';
+var KEY = 'steady_generic_v1';
+var TEST = /[?&]test=1/.test(location.search);
+var ANDROID = location.protocol === 'file:';
+
+// ===================== i18n =====================
+var LANGS = [['en', 'English'], ['et', 'Eesti'], ['pt-BR', 'Português (Brasil)']];
+var REVIEWED = { en: true, et: false, 'pt-BR': false };
+var STR = {};
+STR.en = {
+  nav_now: 'Now', nav_daily: 'Daily', nav_journal: 'Journal', nav_week: 'Week', nav_help: 'Help',
+  settings: 'Settings', hello: 'Hi, {name}.',
+  storage_off: 'Saving is not available on this device. Your entries last until you close the app.',
+  night_label: 'Night', quote_label: 'Today',
+  sos_sub: 'A few calm minutes, step by step.', sos_resume: 'Continue where you left off', sos_restart: 'Start over',
+  worry_label: 'Park a worry', worry_ph: 'What is the worry?', worry_park: 'Park it for {d}', worry_park_morning: 'Park it until tomorrow morning', worry_for: 'For how long',
+  dur_1: '1 minute (test)', dur_30: '30 minutes', dur_60: '1 hour', dur_120: '2 hours', dur_240: '4 hours', dur_morning: 'Until tomorrow morning',
+  worry_look: 'Look again at {time}', worry_look_tomorrow: 'Look again tomorrow at {time}', worry_due: 'Does it still matter?', worry_faded: 'No, it faded', worry_yes: 'Yes',
+  worry_raise: 'Plan to raise it calmly in person', worry_journal: 'Write it in the journal', worry_review: 'Keep for the weekly review',
+  worry_kept_raise: 'To raise calmly in person', worry_kept_journal: 'Moved to the journal', worry_kept_review: 'Kept for the weekly review', worry_remove: 'Remove',
+  worry_none: 'Nothing parked. When a worry pushes, park it here and look again later.',
+  evidence_offer: 'Add this to your evidence that things turn out fine?',
+  add: 'Add', save: 'Save', not_now: 'Not now', saved: 'Saved.', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', close: 'Close', back: 'Back', next: 'Next', skip: 'Skip', done: 'Done',
+  stats_label: 'Your progress', stat_urges: 'Urges ridden out', stat_drop: 'Average drop in intensity', stat_faded: 'Worries that faded', stat_nocheck: 'Days without checking', stat_best: 'Best run: {n}',
+  checkpoint_today: 'Today is your checkpoint day. Answer the questions under Week at a rested moment.',
+  sos_step: 'Step {n} of 6', sos_leave: 'Leave the exercise',
+  s1_title: 'How strong is the urge?', s1_hint: '0 is calm, 10 is the strongest it gets.', scale_aria: '{n} out of 10',
+  safety_title: "If this feels like too much, you don't have to handle it alone.", safety_body: 'You can call someone right now. The exercise will wait.', safety_help: 'See all help',
+  s2_title: 'Name it', s2_rule: 'One of your rules', s2_evidence: 'Remember', s2_night: "It's late. Most things look different in the morning.",
+  s3_title: 'Breathe', s3_in: 'In {n}', s3_hold: 'Hold {n}', s3_out: 'Out {n}', s3_left: '{t} left', min_left_one: '1 minute left', min_left: '{n} minutes left',
+  s4_title: 'Move', s4_hint: 'Pick one, or just start. Moving the body moves the feeling.', s4_start: 'Done, start the timer',
+  s5_title: 'Ride the wave', s5_body: "Urges peak and pass if you don't feed them.", s5_passed: 'It has passed',
+  s6_title: 'How strong is it now?', s6_finish: 'Finish',
+  sum_title: 'You rode it out', sum_text: "From {a} to {b}. You didn't act on it. That's the skill.", sum_text_noscore: "You didn't act on it. That's the skill.",
+  sum_evidence: 'Add to evidence log?', sum_evidence_ph: 'What turned out fine?',
+  daily_today: "Today's checklist", daily_once: 'One-time setup', daily_rules: 'My rules', daily_empty: 'No items yet.', howto: 'How to', edit_list: 'Edit list',
+  j_label: 'Fact or story', j_fact: 'What actually happened (facts only)', j_story: "The story I'm telling myself", j_alt: 'A kinder or likelier explanation',
+  j_emotion: 'Emotion (optional)', j_intensity: 'Intensity 0 to 10 (optional)', j_action: "What I'll do, or not do (optional)",
+  j_save: 'Save entry', j_update: 'Save changes', j_saved: 'Entry saved.', j_past: 'Past entries', j_none: 'No entries yet.', j_confirm_delete: 'Delete this entry?',
+  ev_label: 'It turned out fine', ev_hint: 'Moments when a worry did not come true.', ev_ph: 'A worry that did not happen', ev_none: 'Nothing here yet. Every line you add is proof for next time.',
+  wk_habits: 'Weekly habits', wk_week: 'Week {n}', wk_progress: '{d} of {t}', wk_review: 'Weekly review', wk_review_save: 'Save review', wk_review_saved: 'Review saved. The review habit is ticked.',
+  wk_kept: 'Worries you kept for this review', wk_past: 'Past reviews',
+  cp_label: 'Checkpoint', cp_hint: 'Answer on a rested day, not at night.', cp_date: 'Checkpoint date (optional)', cp_notes: 'Notes',
+  h_why: 'Why this happens', h_helps: 'What helps over time', h_quick: 'Get help quickly if',
+  h_q1: 'you have had several nights without sleep', h_q2: 'worry takes over most of the day, or affects work or children', h_q3: 'you feel hopeless or overwhelmed', h_q4: 'you have any thoughts of harming yourself',
+  h_q_then: 'Contact a doctor, a counsellor or someone you trust the same week.', h_q_emergency: 'In an emergency, call the emergency number.',
+  h_numbers: 'Help numbers', h_other: 'In an emergency, call your local emergency number.', h_add_local: 'Add your local helpline in Settings.', h_mine: 'My numbers',
+  h_disclaimer: 'Steady is a self-help tool, not therapy or medical care.', h_settings: 'Settings and data',
+  n_emergency: 'Emergency', n_fam: 'Family doctor advice line', n_116123: 'Emotional support line (Estonian, Russian, English)',
+  n_eluliin_et: 'Eluliin, emotional support in Estonian, 19:00 to 07:00', n_eluliin_ru: 'Eluliin, emotional support in Russian, 19:00 to 07:00', n_victim: 'Victim support crisis line',
+  n_samu: 'SAMU, medical emergency', n_cvv: 'CVV, emotional support, free, 24 hours', n_sns: 'SNS 24, health advice and psychological counselling, 24 hours',
+  c_EE: 'Estonia', c_BR: 'Brazil', c_PT: 'Portugal', c_OTHER: 'Other',
+  st_lang: 'Language', st_country: 'Country for help numbers', st_name: 'Name or nickname (optional)', st_theme: 'Theme', th_light: 'Light', th_dark: 'Dark', th_system: 'Same as the phone',
+  st_night: 'Night hours', st_from: 'From', st_to: 'To', st_nightline: 'Add a night reminder to the SOS steps', st_reset: 'A new day starts at', st_weekstart: 'Week starts on', monday: 'Monday', sunday: 'Sunday',
+  st_sos: 'SOS steps', st_pattern: 'Breathing pattern', pat_46: 'In 4, out 6', pat_47: 'In 4, out 7', pat_box: 'Box: 4, 4, 4, 4', st_breath: 'Breathing time', st_wave: 'Wave timer', minutes: '{n} min',
+  st_vibrate: 'Gentle vibration when the breath changes', st_showrule: 'Show one of my rules in step 2', st_showev: 'Show a line from my evidence in step 2', st_statnc: 'Show days without checking',
+  st_content: 'Your content', st_pack: 'Starter pack', st_pack_note: 'Changing the pack replaces only the lists you have not edited.',
+  pack_relationship: 'Relationship worries', pack_separation: 'Separation or breakup', pack_stress: 'General stress',
+  pack_relationship_d: 'Checking, waiting for replies, a new relationship.', pack_separation_d: 'Grief, guilt, loneliness, co-parenting stress, no rushing big decisions.', pack_stress_d: 'Work and life overload, rumination.',
+  ed_quotes: 'Quotes', ed_rules: 'My rules', ed_daily: "Today's checklist", ed_once: 'One-time setup', ed_moves: 'Movement ideas', ed_habits: 'Weekly habits',
+  ed_reviewPrompts: 'Review questions', ed_checkpoint: 'Checkpoint questions', ed_why: 'Why this happens', ed_helps: 'What helps over time', ed_texts: 'SOS and night texts', ed_numbers: 'My own help numbers',
+  ed_add: 'Add item', ed_reset: 'Reset to starter content', ed_reset_confirm: 'Replace this list with the starter content?', ed_up: 'Move up', ed_down: 'Move down', ed_remove: 'Remove',
+  ed_nocheck: 'Counts as a day without checking', ed_target: 'Times per week', ed_isreview: 'Ticked when I save a weekly review', ed_howto: 'How to (optional)', ed_item: 'Text',
+  tx_sosLabel: 'SOS button label', tx_sosName: 'Name it: main line', tx_sosNameMore: 'Name it: why acting now will not help', tx_nightText: 'Night banner',
+  num_label: 'Name', num_number: 'Number',
+  st_data: 'Your data', data_note: 'Everything is stored only in this app on this device. Uninstalling the app deletes it. Export a copy now and then.',
+  data_export: 'Export', data_import: 'Import', data_erase: 'Erase everything',
+  export_android: 'Copied to the clipboard. You can also select the text below and save it somewhere safe.', export_done: 'Exported.',
+  import_ph: 'Paste an exported Steady file here', import_check: 'Check file', import_bad: 'This is not a Steady export, or it is damaged.',
+  import_preview: 'This file has {u} urges, {j} journal entries, {e} evidence lines and {w} worries.', import_replace: 'Replace my data', import_merge: 'Merge into my data', import_done: 'Imported.', import_file: 'Or choose a file',
+  erase_1: 'Erase all your entries and settings?', erase_2: 'This cannot be undone. Erase now?', erased: 'Everything was erased.',
+  st_about: 'About', about_version: 'Version {v}',
+  about_privacy: 'Steady stores everything only on this phone. It has no account, no internet access and no tracking. If you uninstall it, your entries are deleted.',
+  about_licence: 'Free software under the GNU General Public License, version 3.', about_review: 'This translation has not yet been reviewed by a native speaker.',
+  ob_welcome_title: 'Welcome to Steady', ob_welcome_body: 'A private place to ride out anxious urges, park worries and build calm habits. It is self-help, not therapy. Everything stays on this phone, with no account and no internet.',
+  ob_start: 'Start', ob_skip: 'Skip setup', ob_lang_title: 'Language and country', ob_lang_body: 'The country decides which help numbers you see.',
+  ob_pack_title: 'What brings you here?', ob_pack_body: 'This fills in starter lists you can change any time.',
+  ob_night_title: 'Nights and the SOS button', ob_night_body: 'At night, worries feel bigger. Steady reminds you not to decide anything then.',
+  ob_tour: 'When an urge comes, press the big button on the first screen. It takes you through a few calm minutes, one step at a time.', ob_show: 'Show me the button', ob_finish: 'Go to Steady'
+};
+// review: Estonian, drafted by Claude 2026-10-14, informal "sina"
+STR.et = {
+  nav_now: 'Praegu', nav_daily: 'Päev', nav_journal: 'Päevik', nav_week: 'Nädal', nav_help: 'Abi',
+  settings: 'Seaded', hello: 'Tere, {name}.',
+  storage_off: 'Salvestamine pole selles seadmes võimalik. Sinu sissekanded püsivad, kuni rakenduse sulged.',
+  night_label: 'Öö', quote_label: 'Täna',
+  sos_sub: 'Mõni rahulik minut, samm sammult.', sos_resume: 'Jätka sealt, kus pooleli jäi', sos_restart: 'Alusta otsast',
+  worry_label: 'Pane mure parklasse', worry_ph: 'Mis on mure?', worry_park: 'Parki {d}', worry_park_morning: 'Parki homme hommikuni', worry_for: 'Kui kauaks',
+  dur_1: '1 minutiks (test)', dur_30: '30 minutiks', dur_60: '1 tunniks', dur_120: '2 tunniks', dur_240: '4 tunniks', dur_morning: 'Homme hommikuni',
+  worry_look: 'Vaata uuesti kell {time}', worry_look_tomorrow: 'Vaata uuesti homme kell {time}', worry_due: 'Kas see on ikka oluline?', worry_faded: 'Ei, see hajus', worry_yes: 'Jah',
+  worry_raise: 'Plaanin selle rahulikult silmast silma jutuks võtta', worry_journal: 'Kirjutan selle päevikusse', worry_review: 'Jätan nädala ülevaate jaoks',
+  worry_kept_raise: 'Rahulikult silmast silma arutada', worry_kept_journal: 'Päevikusse viidud', worry_kept_review: 'Nädala ülevaate jaoks', worry_remove: 'Eemalda',
+  worry_none: 'Parklas pole midagi. Kui mure peale surub, pane see siia ja vaata hiljem uuesti.',
+  evidence_offer: 'Kas lisad selle tõendite hulka, et asjad lähevad hästi?',
+  add: 'Lisa', save: 'Salvesta', not_now: 'Mitte praegu', saved: 'Salvestatud.', cancel: 'Loobu', delete: 'Kustuta', edit: 'Muuda', close: 'Sulge', back: 'Tagasi', next: 'Edasi', skip: 'Jäta vahele', done: 'Valmis',
+  stats_label: 'Sinu edusammud', stat_urges: 'Tungid, millest said üle', stat_drop: 'Tugevus langes keskmiselt', stat_faded: 'Hajunud mured', stat_nocheck: 'Päevad ilma kontrollimata', stat_best: 'Parim jada: {n}',
+  checkpoint_today: 'Täna on sinu vahekokkuvõtte päev. Vasta küsimustele nädala vaates rahulikul hetkel.',
+  sos_step: 'Samm {n}/6', sos_leave: 'Lahku harjutusest',
+  s1_title: 'Kui tugev see tung on?', s1_hint: '0 on rahulik, 10 on kõige tugevam.', scale_aria: '{n} kümnest',
+  safety_title: 'Kui see tundub liiga palju, ei pea sa sellega üksi hakkama saama.', safety_body: 'Võid kohe kellelegi helistada. Harjutus ootab.', safety_help: 'Vaata kogu abi',
+  s2_title: 'Nimeta see', s2_rule: 'Üks sinu reeglitest', s2_evidence: 'Pea meeles', s2_night: 'On hilja. Hommikul näeb enamik asju teisiti välja.',
+  s3_title: 'Hinga', s3_in: 'Sisse {n}', s3_hold: 'Hoia {n}', s3_out: 'Välja {n}', s3_left: '{t} jäänud', min_left_one: '1 minut jäänud', min_left: '{n} minutit jäänud',
+  s4_title: 'Liiguta', s4_hint: 'Vali üks või lihtsalt alusta. Keha liigutamine liigutab ka tunnet.', s4_start: 'Tehtud, käivita taimer',
+  s5_title: 'Sõida lainega', s5_body: 'Tungid tõusevad ja vaibuvad, kui sa neid ei toida.', s5_passed: 'See on möödas',
+  s6_title: 'Kui tugev see nüüd on?', s6_finish: 'Lõpeta',
+  sum_title: 'Said sellest üle', sum_text: '{a} pealt {b} peale. Sa ei teinud selle järgi midagi. See ongi oskus.', sum_text_noscore: 'Sa ei teinud selle järgi midagi. See ongi oskus.',
+  sum_evidence: 'Lisad tõendite logisse?', sum_evidence_ph: 'Mis läks lõpuks hästi?',
+  daily_today: 'Tänane nimekiri', daily_once: 'Ühekordsed sammud', daily_rules: 'Minu reeglid', daily_empty: 'Siin pole veel midagi.', howto: 'Kuidas', edit_list: 'Muuda nimekirja',
+  j_label: 'Fakt või lugu', j_fact: 'Mis tegelikult juhtus (ainult faktid)', j_story: 'Lugu, mida ma endale räägin', j_alt: 'Lahkem või tõenäolisem seletus',
+  j_emotion: 'Tunne (valikuline)', j_intensity: 'Tugevus 0 kuni 10 (valikuline)', j_action: 'Mida ma teen või jätan tegemata (valikuline)',
+  j_save: 'Salvesta sissekanne', j_update: 'Salvesta muudatused', j_saved: 'Sissekanne salvestatud.', j_past: 'Varasemad sissekanded', j_none: 'Sissekandeid veel pole.', j_confirm_delete: 'Kas kustutad selle sissekande?',
+  ev_label: 'Läks lõpuks hästi', ev_hint: 'Hetked, kui mure ei täitunud.', ev_ph: 'Mure, mis ei läinud täide', ev_none: 'Siin pole veel midagi. Iga rida, mille lisad, on järgmiseks korraks tõend.',
+  wk_habits: 'Nädala harjumused', wk_week: '{n}. nädal', wk_progress: '{d}/{t}', wk_review: 'Nädala ülevaade', wk_review_save: 'Salvesta ülevaade', wk_review_saved: 'Ülevaade salvestatud. Ülevaate harjumus on märgitud.',
+  wk_kept: 'Mured, mille jätsid selle ülevaate jaoks', wk_past: 'Varasemad ülevaated',
+  cp_label: 'Vahekokkuvõte', cp_hint: 'Vasta väljapuhanuna, mitte öösel.', cp_date: 'Vahekokkuvõtte kuupäev (valikuline)', cp_notes: 'Märkmed',
+  h_why: 'Miks see juhtub', h_helps: 'Mis aitab aja jooksul', h_quick: 'Otsi kiiresti abi, kui',
+  h_q1: 'oled mitu ööd järjest magamata', h_q2: 'mure võtab enamiku päevast või mõjutab tööd või lapsi', h_q3: 'tunned end lootusetu või ülekoormatuna', h_q4: 'sul on mõtteid endale haiget teha',
+  h_q_then: 'Võta samal nädalal ühendust arsti, nõustaja või inimesega, keda usaldad.', h_q_emergency: 'Hädaolukorras helista hädaabinumbril.',
+  h_numbers: 'Abinumbrid', h_other: 'Hädaolukorras helista oma riigi hädaabinumbril.', h_add_local: 'Lisa oma kohalik abitelefon seadetes.', h_mine: 'Minu numbrid',
+  h_disclaimer: 'Steady on eneseabi vahend, mitte teraapia ega arstiabi.', h_settings: 'Seaded ja andmed',
+  n_emergency: 'Hädaabi', n_fam: 'Perearsti nõuandeliin', n_116123: 'Emotsionaalse toe telefon (eesti, vene ja inglise keeles)',
+  n_eluliin_et: 'Eluliin, emotsionaalne tugi eesti keeles, 19.00 kuni 07.00', n_eluliin_ru: 'Eluliin, emotsionaalne tugi vene keeles, 19.00 kuni 07.00', n_victim: 'Ohvriabi kriisitelefon',
+  n_samu: 'SAMU, kiirabi', n_cvv: 'CVV, emotsionaalne tugi, tasuta, ööpäev läbi', n_sns: 'SNS 24, terviseinfo ja psühholoogiline nõustamine, ööpäev läbi',
+  c_EE: 'Eesti', c_BR: 'Brasiilia', c_PT: 'Portugal', c_OTHER: 'Muu',
+  st_lang: 'Keel', st_country: 'Riik abinumbrite jaoks', st_name: 'Nimi või hüüdnimi (valikuline)', st_theme: 'Teema', th_light: 'Hele', th_dark: 'Tume', th_system: 'Nagu telefonis',
+  st_night: 'Öötunnid', st_from: 'Alates', st_to: 'Kuni', st_nightline: 'Lisa öösel SOS sammudele meeldetuletus', st_reset: 'Uus päev algab kell', st_weekstart: 'Nädal algab', monday: 'esmaspäeval', sunday: 'pühapäeval',
+  st_sos: 'SOS sammud', st_pattern: 'Hingamismuster', pat_46: 'Sisse 4, välja 6', pat_47: 'Sisse 4, välja 7', pat_box: 'Ruut: 4, 4, 4, 4', st_breath: 'Hingamise aeg', st_wave: 'Laine taimer', minutes: '{n} min',
+  st_vibrate: 'Õrn värin, kui hingamine vahetub', st_showrule: 'Näita 2. sammus üht minu reeglit', st_showev: 'Näita 2. sammus rida minu tõenditest', st_statnc: 'Näita kontrollimata päevi',
+  st_content: 'Sinu sisu', st_pack: 'Alguspakett', st_pack_note: 'Paketi vahetamine asendab ainult need nimekirjad, mida sa pole muutnud.',
+  pack_relationship: 'Suhtemured', pack_separation: 'Lahkuminek või lahutus', pack_stress: 'Üldine stress',
+  pack_relationship_d: 'Kontrollimine, vastuste ootamine, uus suhe.', pack_separation_d: 'Lein, süütunne, üksindus, lastega seotud pinge, suurte otsustega mitte kiirustamine.', pack_stress_d: 'Töö ja elu ülekoormus, mõtete keerutamine.',
+  ed_quotes: 'Tsitaadid', ed_rules: 'Minu reeglid', ed_daily: 'Tänane nimekiri', ed_once: 'Ühekordsed sammud', ed_moves: 'Liikumise ideed', ed_habits: 'Nädala harjumused',
+  ed_reviewPrompts: 'Ülevaate küsimused', ed_checkpoint: 'Vahekokkuvõtte küsimused', ed_why: 'Miks see juhtub', ed_helps: 'Mis aitab aja jooksul', ed_texts: 'SOS ja öö tekstid', ed_numbers: 'Minu abinumbrid',
+  ed_add: 'Lisa', ed_reset: 'Taasta alguse sisu', ed_reset_confirm: 'Kas asendad selle nimekirja alguse sisuga?', ed_up: 'Liiguta üles', ed_down: 'Liiguta alla', ed_remove: 'Eemalda',
+  ed_nocheck: 'Loeb kontrollimata päevaks', ed_target: 'Kordi nädalas', ed_isreview: 'Märgitakse, kui salvestan nädala ülevaate', ed_howto: 'Kuidas (valikuline)', ed_item: 'Tekst',
+  tx_sosLabel: 'SOS nupu tekst', tx_sosName: 'Nimeta see: põhilause', tx_sosNameMore: 'Nimeta see: miks praegu tegutsemine ei aita', tx_nightText: 'Öö teade',
+  num_label: 'Nimi', num_number: 'Number',
+  st_data: 'Sinu andmed', data_note: 'Kõik on salvestatud ainult selles rakenduses selles seadmes. Rakenduse eemaldamine kustutab need. Ekspordi aeg-ajalt koopia.',
+  data_export: 'Ekspordi', data_import: 'Impordi', data_erase: 'Kustuta kõik',
+  export_android: 'Kopeeritud lõikelauale. Võid ka allolevat teksti valida ja turvalisse kohta salvestada.', export_done: 'Eksporditud.',
+  import_ph: 'Kleebi siia eksporditud Steady fail', import_check: 'Kontrolli faili', import_bad: 'See pole Steady eksport või on fail kahjustatud.',
+  import_preview: 'Failis on tunge {u}, päevikusissekandeid {j}, tõendiridu {e} ja muresid {w}.', import_replace: 'Asenda minu andmed', import_merge: 'Liida minu andmetega', import_done: 'Imporditud.', import_file: 'Või vali fail',
+  erase_1: 'Kas kustutad kõik oma sissekanded ja seaded?', erase_2: 'Seda ei saa tagasi võtta. Kas kustutan nüüd?', erased: 'Kõik on kustutatud.',
+  st_about: 'Teave', about_version: 'Versioon {v}',
+  about_privacy: 'Steady hoiab kõike ainult selles telefonis. Sellel pole kontot, internetiühendust ega jälgimist. Kui rakenduse eemaldad, kustuvad ka sinu sissekanded.',
+  about_licence: 'Vaba tarkvara GNU General Public License\'i versiooni 3 alusel.', about_review: 'Seda tõlget pole emakeelne kõneleja veel üle vaadanud.',
+  ob_welcome_title: 'Tere tulemast Steadysse', ob_welcome_body: 'Privaatne koht, kus ärevatest tungidest üle saada, muresid parkida ja rahulikke harjumusi kasvatada. See on eneseabi, mitte teraapia. Kõik jääb sellesse telefoni, ilma konto ja internetita.',
+  ob_start: 'Alusta', ob_skip: 'Jäta seadistus vahele', ob_lang_title: 'Keel ja riik', ob_lang_body: 'Riigi järgi näed sobivaid abinumbreid.',
+  ob_pack_title: 'Mis sind siia toob?', ob_pack_body: 'Selle järgi täidetakse alguse nimekirjad, mida saad igal ajal muuta.',
+  ob_night_title: 'Ööd ja SOS nupp', ob_night_body: 'Öösel tunduvad mured suuremad. Steady tuletab meelde, et siis ei tasu midagi otsustada.',
+  ob_tour: 'Kui tung tuleb, vajuta esimesel ekraanil suurt nuppu. See juhatab sind läbi mõne rahuliku minuti, samm korraga.', ob_show: 'Näita mulle nuppu', ob_finish: 'Mine Steadysse'
+};
+// review: Brazilian Portuguese, drafted by Claude 2026-10-14, informal "você"
+STR['pt-BR'] = {
+  nav_now: 'Agora', nav_daily: 'Dia', nav_journal: 'Diário', nav_week: 'Semana', nav_help: 'Ajuda',
+  settings: 'Configurações', hello: 'Oi, {name}.',
+  storage_off: 'Não é possível salvar neste aparelho. Suas anotações duram até você fechar o app.',
+  night_label: 'Noite', quote_label: 'Hoje',
+  sos_sub: 'Alguns minutos de calma, passo a passo.', sos_resume: 'Continuar de onde parou', sos_restart: 'Começar de novo',
+  worry_label: 'Estacionar uma preocupação', worry_ph: 'Qual é a preocupação?', worry_park: 'Estacionar por {d}', worry_park_morning: 'Estacionar até amanhã de manhã', worry_for: 'Por quanto tempo',
+  dur_1: '1 minuto (teste)', dur_30: '30 minutos', dur_60: '1 hora', dur_120: '2 horas', dur_240: '4 horas', dur_morning: 'Até amanhã de manhã',
+  worry_look: 'Olhar de novo às {time}', worry_look_tomorrow: 'Olhar de novo amanhã às {time}', worry_due: 'Isso ainda importa?', worry_faded: 'Não, passou', worry_yes: 'Sim',
+  worry_raise: 'Planejar falar sobre isso com calma, pessoalmente', worry_journal: 'Escrever no diário', worry_review: 'Guardar para a revisão semanal',
+  worry_kept_raise: 'Para conversar com calma, pessoalmente', worry_kept_journal: 'Levado para o diário', worry_kept_review: 'Guardado para a revisão semanal', worry_remove: 'Remover',
+  worry_none: 'Nada estacionado. Quando uma preocupação apertar, estacione aqui e olhe de novo depois.',
+  evidence_offer: 'Quer adicionar isso às suas provas de que as coisas dão certo?',
+  add: 'Adicionar', save: 'Salvar', not_now: 'Agora não', saved: 'Salvo.', cancel: 'Cancelar', delete: 'Excluir', edit: 'Editar', close: 'Fechar', back: 'Voltar', next: 'Próximo', skip: 'Pular', done: 'Pronto',
+  stats_label: 'Seu progresso', stat_urges: 'Impulsos atravessados', stat_drop: 'Queda média da intensidade', stat_faded: 'Preocupações que passaram', stat_nocheck: 'Dias sem checar', stat_best: 'Melhor sequência: {n}',
+  checkpoint_today: 'Hoje é o seu dia de reflexão. Responda às perguntas em Semana num momento descansado.',
+  sos_step: 'Passo {n} de 6', sos_leave: 'Sair do exercício',
+  s1_title: 'Qual é a força do impulso?', s1_hint: '0 é calma, 10 é o mais forte possível.', scale_aria: '{n} de 10',
+  safety_title: 'Se isso parecer demais, você não precisa passar por isso sem ajuda.', safety_body: 'Você pode ligar para alguém agora. O exercício espera.', safety_help: 'Ver toda a ajuda',
+  s2_title: 'Dê um nome', s2_rule: 'Uma das suas regras', s2_evidence: 'Lembre-se', s2_night: 'Está tarde. A maioria das coisas parece diferente de manhã.',
+  s3_title: 'Respire', s3_in: 'Inspire {n}', s3_hold: 'Segure {n}', s3_out: 'Expire {n}', s3_left: 'faltam {t}', min_left_one: 'Falta 1 minuto', min_left: 'Faltam {n} minutos',
+  s4_title: 'Mexa-se', s4_hint: 'Escolha uma opção ou só comece. Mexer o corpo mexe o sentimento.', s4_start: 'Pronto, iniciar o cronômetro',
+  s5_title: 'Surfe a onda', s5_body: 'Os impulsos sobem e passam se você não os alimenta.', s5_passed: 'Já passou',
+  s6_title: 'Qual é a força agora?', s6_finish: 'Concluir',
+  sum_title: 'Você atravessou', sum_text: 'De {a} para {b}. Você não agiu por impulso. Essa é a habilidade.', sum_text_noscore: 'Você não agiu por impulso. Essa é a habilidade.',
+  sum_evidence: 'Adicionar ao registro de provas?', sum_evidence_ph: 'O que acabou dando certo?',
+  daily_today: 'Lista de hoje', daily_once: 'Configuração única', daily_rules: 'Minhas regras', daily_empty: 'Ainda não há itens.', howto: 'Como fazer', edit_list: 'Editar lista',
+  j_label: 'Fato ou história', j_fact: 'O que de fato aconteceu (só fatos)', j_story: 'A história que estou contando para mim', j_alt: 'Uma explicação mais gentil ou mais provável',
+  j_emotion: 'Emoção (opcional)', j_intensity: 'Intensidade de 0 a 10 (opcional)', j_action: 'O que vou fazer, ou não fazer (opcional)',
+  j_save: 'Salvar anotação', j_update: 'Salvar alterações', j_saved: 'Anotação salva.', j_past: 'Anotações anteriores', j_none: 'Nenhuma anotação ainda.', j_confirm_delete: 'Excluir esta anotação?',
+  ev_label: 'Deu tudo certo', ev_hint: 'Momentos em que uma preocupação não se realizou.', ev_ph: 'Uma preocupação que não aconteceu', ev_none: 'Nada aqui ainda. Cada linha que você adiciona é uma prova para a próxima vez.',
+  wk_habits: 'Hábitos da semana', wk_week: 'Semana {n}', wk_progress: '{d} de {t}', wk_review: 'Revisão semanal', wk_review_save: 'Salvar revisão', wk_review_saved: 'Revisão salva. O hábito de revisão foi marcado.',
+  wk_kept: 'Preocupações guardadas para esta revisão', wk_past: 'Revisões anteriores',
+  cp_label: 'Ponto de reflexão', cp_hint: 'Responda num dia descansado, não à noite.', cp_date: 'Data da reflexão (opcional)', cp_notes: 'Anotações',
+  h_why: 'Por que isso acontece', h_helps: 'O que ajuda com o tempo', h_quick: 'Procure ajuda rápido se',
+  h_q1: 'você passou várias noites sem dormir', h_q2: 'a preocupação ocupa a maior parte do dia, ou afeta o trabalho ou os filhos', h_q3: 'você se sente sem esperança ou no limite', h_q4: 'você tem qualquer pensamento de se machucar',
+  h_q_then: 'Fale com um médico, um psicólogo ou alguém de confiança ainda nesta semana.', h_q_emergency: 'Numa emergência, ligue para o número de emergência.',
+  h_numbers: 'Números de ajuda', h_other: 'Numa emergência, ligue para o número de emergência do seu país.', h_add_local: 'Adicione o seu número de apoio local nas Configurações.', h_mine: 'Meus números',
+  h_disclaimer: 'O Steady é uma ferramenta de autoajuda, não terapia nem cuidado médico.', h_settings: 'Configurações e dados',
+  n_emergency: 'Emergência', n_fam: 'Linha de orientação do médico de família', n_116123: 'Linha de apoio emocional (estoniano, russo e inglês)',
+  n_eluliin_et: 'Eluliin, apoio emocional em estoniano, das 19h às 7h', n_eluliin_ru: 'Eluliin, apoio emocional em russo, das 19h às 7h', n_victim: 'Linha de crise de apoio à vítima',
+  n_samu: 'SAMU, emergência médica', n_cvv: 'CVV, apoio emocional, gratuito, 24 horas', n_sns: 'SNS 24, orientação de saúde e aconselhamento psicológico, 24 horas',
+  c_EE: 'Estônia', c_BR: 'Brasil', c_PT: 'Portugal', c_OTHER: 'Outro',
+  st_lang: 'Idioma', st_country: 'País dos números de ajuda', st_name: 'Nome ou apelido (opcional)', st_theme: 'Tema', th_light: 'Claro', th_dark: 'Escuro', th_system: 'Igual ao celular',
+  st_night: 'Horas da noite', st_from: 'De', st_to: 'Até', st_nightline: 'Adicionar um lembrete noturno aos passos de SOS', st_reset: 'O novo dia começa às', st_weekstart: 'A semana começa no', monday: 'segunda-feira', sunday: 'domingo',
+  st_sos: 'Passos de SOS', st_pattern: 'Padrão de respiração', pat_46: 'Inspire 4, expire 6', pat_47: 'Inspire 4, expire 7', pat_box: 'Quadrada: 4, 4, 4, 4', st_breath: 'Tempo de respiração', st_wave: 'Cronômetro da onda', minutes: '{n} min',
+  st_vibrate: 'Vibração suave quando a respiração muda', st_showrule: 'Mostrar uma das minhas regras no passo 2', st_showev: 'Mostrar uma linha das minhas provas no passo 2', st_statnc: 'Mostrar dias sem checar',
+  st_content: 'Seu conteúdo', st_pack: 'Pacote inicial', st_pack_note: 'Trocar o pacote substitui só as listas que você não editou.',
+  pack_relationship: 'Preocupações no relacionamento', pack_separation: 'Separação ou término', pack_stress: 'Estresse em geral',
+  pack_relationship_d: 'Checar, esperar respostas, relacionamento novo.', pack_separation_d: 'Luto, culpa, solidão, tensão em criar os filhos juntos, sem pressa para grandes decisões.', pack_stress_d: 'Sobrecarga de trabalho e vida, pensamentos repetitivos.',
+  ed_quotes: 'Frases', ed_rules: 'Minhas regras', ed_daily: 'Lista de hoje', ed_once: 'Configuração única', ed_moves: 'Ideias de movimento', ed_habits: 'Hábitos da semana',
+  ed_reviewPrompts: 'Perguntas da revisão', ed_checkpoint: 'Perguntas de reflexão', ed_why: 'Por que isso acontece', ed_helps: 'O que ajuda com o tempo', ed_texts: 'Textos do SOS e da noite', ed_numbers: 'Meus números de ajuda',
+  ed_add: 'Adicionar', ed_reset: 'Voltar ao conteúdo inicial', ed_reset_confirm: 'Substituir esta lista pelo conteúdo inicial?', ed_up: 'Mover para cima', ed_down: 'Mover para baixo', ed_remove: 'Remover',
+  ed_nocheck: 'Conta como dia sem checar', ed_target: 'Vezes por semana', ed_isreview: 'Marcado quando salvo uma revisão semanal', ed_howto: 'Como fazer (opcional)', ed_item: 'Texto',
+  tx_sosLabel: 'Texto do botão de SOS', tx_sosName: 'Dê um nome: frase principal', tx_sosNameMore: 'Dê um nome: por que agir agora não ajuda', tx_nightText: 'Aviso da noite',
+  num_label: 'Nome', num_number: 'Número',
+  st_data: 'Seus dados', data_note: 'Tudo fica salvo só neste app, neste aparelho. Desinstalar o app apaga tudo. Exporte uma cópia de vez em quando.',
+  data_export: 'Exportar', data_import: 'Importar', data_erase: 'Apagar tudo',
+  export_android: 'Copiado para a área de transferência. Você também pode selecionar o texto abaixo e guardar num lugar seguro.', export_done: 'Exportado.',
+  import_ph: 'Cole aqui um arquivo exportado do Steady', import_check: 'Verificar arquivo', import_bad: 'Isto não é uma exportação do Steady, ou o arquivo está danificado.',
+  import_preview: 'Este arquivo tem {u} impulsos, {j} anotações do diário, {e} linhas de provas e {w} preocupações.', import_replace: 'Substituir meus dados', import_merge: 'Juntar com meus dados', import_done: 'Importado.', import_file: 'Ou escolha um arquivo',
+  erase_1: 'Apagar todas as suas anotações e configurações?', erase_2: 'Isso não pode ser desfeito. Apagar agora?', erased: 'Tudo foi apagado.',
+  st_about: 'Sobre', about_version: 'Versão {v}',
+  about_privacy: 'O Steady guarda tudo só neste celular. Não tem conta, não acessa a internet e não rastreia nada. Se você desinstalar, suas anotações são apagadas.',
+  about_licence: 'Software livre sob a GNU General Public License, versão 3.', about_review: 'Esta tradução ainda não foi revisada por um falante nativo.',
+  ob_welcome_title: 'Boas-vindas ao Steady', ob_welcome_body: 'Um lugar privado para atravessar impulsos ansiosos, estacionar preocupações e criar hábitos calmos. É autoajuda, não terapia. Tudo fica neste celular, sem conta e sem internet.',
+  ob_start: 'Começar', ob_skip: 'Pular configuração', ob_lang_title: 'Idioma e país', ob_lang_body: 'O país define quais números de ajuda você vê.',
+  ob_pack_title: 'O que traz você aqui?', ob_pack_body: 'Isso preenche listas iniciais que você pode mudar quando quiser.',
+  ob_night_title: 'Noites e o botão de SOS', ob_night_body: 'À noite as preocupações parecem maiores. O Steady lembra você de não decidir nada nessa hora.',
+  ob_tour: 'Quando vier um impulso, aperte o botão grande na primeira tela. Ele guia você por alguns minutos de calma, um passo de cada vez.', ob_show: 'Mostrar o botão', ob_finish: 'Ir para o Steady'
+};
+
+// ===================== starter content =====================
+// daily items: [text, countsAsNoChecking]; once: [text, howTo]; habits: [text, target, isReview]
+var CONTENT = {};
+CONTENT.en = {
+  base: {
+    texts: {
+      sosLabel: 'I feel the urge to check or react',
+      sosName: 'This is anxiety, not information.',
+      sosNameMore: "Checking or texting now won't bring the calm you're looking for. Whatever you find will feed the worry.",
+      nightText: 'Night thoughts are not data. No big conclusions until morning. Phone face down, out of the bedroom.'
+    },
+    moves: ['Walk around the block', 'Stairs or 15 push-ups', 'A glass of water outside', 'Something with your hands (dishes, tidying)', '10 minutes of a hobby', 'Play with your child or pet', 'Stretch for 5 minutes'],
+    habits: [['Exercise', 3], ['Time with a friend or family', 1], ['One evening fully for myself', 1], ['Weekly review', 1, true]],
+    reviewPrompts: ['What went well?', 'What worried me?', 'Which worries came true?', 'One thing for next week'],
+    once: [
+      ['Hide "last seen" and read receipts in your messaging app', 'In WhatsApp this is under Settings, Privacy, Last seen and online. Menus change, so check your own app.'],
+      ['Mute the chat that triggers you during work hours', ''],
+      ['Book a counsellor or therapist', ''],
+      ['Message one friend', ''],
+      ['Set a bedtime alarm', '']
+    ],
+    why: [
+      "Uncertainty switches on the brain's alarm system. A silent phone is pure uncertainty.",
+      'Old hurts can make silence feel like danger, even when nothing is wrong.',
+      'Stress, loneliness and poor sleep amplify every feeling.',
+      'The early stage of a relationship, or a big life change, is when uncertainty is highest.',
+      'Checking gives a quick, unreliable relief, which is exactly what makes it a habit.'
+    ],
+    helps: ['Sleep first.', 'Move.', 'People outside the relationship.', 'Your own projects.', 'A counsellor.', 'Legal or practical advice for big decisions.', 'Use AI or friends for decisions, not for constant reassurance.']
+  },
+  packs: {
+    relationship: {
+      quotes: ['This is anxiety, not information.', "Checking can't give me the calm I'm looking for.", 'Silence is not a message.', 'Judge by actions in person, over weeks.', 'The pressure is my alarm system, not a fact about them.', 'Every urge I ride out teaches my brain that waiting is survivable.', 'Fewer, lighter messages. More real time together.', 'Say needs out loud, calmly, in person.', 'Sleep first. Everything looks heavier at 4 am.', 'I can feel this and still choose what I do.', 'Most worries never happen.', 'Be kind to yourself. This is hard.'],
+      rules: ['One question at a time.', 'No follow-up within two hours.', 'Heavy topics only in person.', 'One apology is enough.', 'Silence is not a message.', 'Judge by actions over weeks, not single messages.'],
+      daily: [['No checking online status today', true], ['No follow-up message within two hours'], ['No big conclusions at night'], ['Phone out of the bedroom'], ['Moved my body'], ['Something just for me']],
+      checkpoint: ['Do I feel good and safe with this person in person?', 'Are plans usually kept or replaced with a new date?', 'Is effort mutual?', 'Have my clearly stated needs been met halfway?', 'How is my sleep and wellbeing overall?'],
+      habits: [['Exercise', 3], ['One social contact outside the relationship', 1], ['One evening fully for myself', 1], ['Weekly review', 1, true]]
+    },
+    separation: {
+      quotes: ['Grief comes in waves. Let this one pass.', "I don't have to decide my whole future tonight.", "Guilt means I care. It doesn't mean I'm bad.", 'One small good thing today is enough.', 'This is anxiety, not information.', 'I can feel this and still choose what I do.', 'Sleep first. Everything looks heavier at 4 am.', 'Be kind to yourself. This is hard.', 'Most worries never happen.', 'Hard conversations go better rested and in daylight.'],
+      rules: ['No big decisions at night.', 'One hard conversation at a time.', 'Practical topics in writing, feelings in person or with support.', 'One apology is enough.', 'Children stay out of adult conversations.', 'Ask for advice before signing anything.'],
+      daily: [["No checking their social media today", true], ['No reply to a hard message within two hours'], ['No big conclusions at night'], ['Ate a proper meal'], ['Moved my body'], ['Talked to someone who cares about me']],
+      checkpoint: ['How is my sleep and wellbeing overall?', 'Do I have the support I need?', 'Which decisions can wait, and which cannot?', 'Am I deciding from calm or from fear?', 'What do I need in the next month?'],
+      texts: { sosLabel: 'I feel the urge to react or reach out', sosNameMore: 'Acting from this feeling now rarely brings the relief it promises. The wave will pass first.' }
+    },
+    stress: {
+      quotes: ['This is stress, not a verdict.', 'One thing at a time.', 'Rest is part of the work.', 'I can feel this and still choose what I do.', 'Sleep first. Everything looks heavier at 4 am.', 'Most worries never happen.', 'Done is better than perfect.', 'I am allowed to say no.', 'Be kind to yourself. This is hard.', 'This feeling will pass.'],
+      rules: ['Work messages wait until working hours.', 'One task at a time.', 'Worries go to the parking spot, not into the night.', 'A break every 90 minutes.', 'No big decisions when exhausted.', 'Ask for help before it gets too much.'],
+      daily: [['No checking work mail after hours', true], ['One real break'], ['No big conclusions at night'], ['Phone out of the bedroom'], ['Moved my body'], ['Something just for me']],
+      checkpoint: ['How is my sleep and wellbeing overall?', 'What drains me most, and can it change?', 'What gives me energy?', 'Is my load fair and sustainable?', 'What can I let go of?'],
+      texts: { sosLabel: 'I feel overwhelmed', sosName: 'This is stress, not information.', sosNameMore: "Rushing to act or worrying harder won't bring calm. A few minutes of slowing down will." }
+    }
+  }
+};
+// review: Estonian starter content, drafted by Claude 2026-10-14
+CONTENT.et = {
+  base: {
+    texts: {
+      sosLabel: 'Tunnen tungi kontrollida või reageerida',
+      sosName: 'See on ärevus, mitte info.',
+      sosNameMore: 'Kontrollimine või kirjutamine ei too praegu rahu, mida otsid. Mida iganes leiad, toidab muret.',
+      nightText: 'Öised mõtted pole andmed. Suuri järeldusi alles hommikul. Telefon ekraaniga alla ja magamistoast välja.'
+    },
+    moves: ['Jalutuskäik ümber kvartali', 'Trepid või 15 kätekõverdust', 'Klaas vett õues', 'Midagi kätega (nõud, koristamine)', '10 minutit hobiga', 'Mängi oma lapse või lemmikloomaga', '5 minutit venitamist'],
+    habits: [['Liikumine', 3], ['Aeg sõbra või lähedasega', 1], ['Üks õhtu täiesti enda jaoks', 1], ['Nädala ülevaade', 1, true]],
+    reviewPrompts: ['Mis läks hästi?', 'Mis mind muretsema pani?', 'Millised mured täitusid?', 'Üks asi järgmiseks nädalaks'],
+    once: [
+      ['Peida sõnumirakenduses „viimati nähtud“ ja lugemiskinnitused', 'WhatsAppis on see menüüs Seaded, Privaatsus, Viimati nähtud ja võrgus. Menüüd muutuvad, nii et kontrolli oma rakendust.'],
+      ['Vaigista tööajaks vestlus, mis sind käivitab', ''],
+      ['Broneeri aeg nõustaja või terapeudi juurde', ''],
+      ['Kirjuta ühele sõbrale', ''],
+      ['Pane magamamineku äratus', '']
+    ],
+    why: [
+      'Ebakindlus lülitab sisse aju häiresüsteemi. Vaikne telefon on puhas ebakindlus.',
+      'Vanad haavad võivad panna vaikuse tunduma ohuna, isegi kui midagi pole valesti.',
+      'Stress, üksindus ja kehv uni võimendavad iga tunnet.',
+      'Suhte algus või suur elumuutus on aeg, mil ebakindlus on kõige suurem.',
+      'Kontrollimine annab kiire ja ebakindla kergenduse, ja just see teebki sellest harjumuse.'
+    ],
+    helps: ['Kõigepealt uni.', 'Liikumine.', 'Inimesed väljaspool suhet.', 'Oma projektid.', 'Nõustaja.', 'Suurte otsuste puhul juriidiline või praktiline nõu.', 'Kasuta tehisintellekti või sõpru otsuste tegemiseks, mitte pidevaks rahustamiseks.']
+  },
+  packs: {
+    relationship: {
+      quotes: ['See on ärevus, mitte info.', 'Kontrollimine ei anna mulle rahu, mida otsin.', 'Vaikus pole sõnum.', 'Hinda tegude järgi, kohtudes, nädalate jooksul.', 'Surve on minu häiresüsteem, mitte fakt tema kohta.', 'Iga tung, millest üle saan, õpetab ajule, et ootamine on talutav.', 'Vähem ja kergemaid sõnumeid. Rohkem päris koosolemist.', 'Ütle oma vajadused välja rahulikult ja silmast silma.', 'Kõigepealt uni. Kell neli öösel tundub kõik raskem.', 'Võin seda tunda ja ikkagi ise valida, mida teen.', 'Enamik muresid ei juhtu kunagi.', 'Ole enda vastu lahke. See on raske.'],
+      rules: ['Üks küsimus korraga.', 'Kahe tunni jooksul järelsõnumit ei saada.', 'Rasked teemad ainult silmast silma.', 'Üks vabandus on piisav.', 'Vaikus pole sõnum.', 'Hinda tegude järgi nädalate jooksul, mitte üksikute sõnumite järgi.'],
+      daily: [['Täna ei kontrollinud ma võrgusolekut', true], ['Kahe tunni jooksul järelsõnumit ei saatnud'], ['Öösel suuri järeldusi ei teinud'], ['Telefon on magamistoast väljas'], ['Liigutasin keha'], ['Midagi ainult enda jaoks']],
+      checkpoint: ['Kas tunnen end selle inimesega koos olles hästi ja turvaliselt?', 'Kas plaanidest peetakse kinni või asendatakse need uue kuupäevaga?', 'Kas pingutus on vastastikune?', 'Kas minu selgelt öeldud vajadustele on poolel teel vastu tuldud?', 'Kuidas on mu uni ja üldine heaolu?'],
+      habits: [['Liikumine', 3], ['Üks kohtumine kellegagi väljaspool suhet', 1], ['Üks õhtu täiesti enda jaoks', 1], ['Nädala ülevaade', 1, true]]
+    },
+    separation: {
+      quotes: ['Lein tuleb lainetena. Lase sel mööduda.', 'Ma ei pea täna öösel kogu oma tulevikku otsustama.', 'Süütunne tähendab, et ma hoolin. See ei tähenda, et olen halb.', 'Üks väike hea asi täna on piisav.', 'See on ärevus, mitte info.', 'Võin seda tunda ja ikkagi ise valida, mida teen.', 'Kõigepealt uni. Kell neli öösel tundub kõik raskem.', 'Ole enda vastu lahke. See on raske.', 'Enamik muresid ei juhtu kunagi.', 'Rasked vestlused lähevad paremini väljapuhanuna ja päevavalges.'],
+      rules: ['Öösel suuri otsuseid ei tee.', 'Üks raske vestlus korraga.', 'Praktilised teemad kirjalikult, tunded silmast silma või toega.', 'Üks vabandus on piisav.', 'Lapsed jäävad täiskasvanute vestlustest välja.', 'Enne allkirjastamist küsi nõu.'],
+      daily: [['Täna ei kontrollinud ma tema sotsiaalmeediat', true], ['Raskele sõnumile ei vastanud kahe tunni jooksul'], ['Öösel suuri järeldusi ei teinud'], ['Sõin korraliku toidukorra'], ['Liigutasin keha'], ['Rääkisin kellegagi, kes minust hoolib']],
+      checkpoint: ['Kuidas on mu uni ja üldine heaolu?', 'Kas mul on tuge, mida vajan?', 'Millised otsused võivad oodata ja millised mitte?', 'Kas otsustan rahust või hirmust?', 'Mida ma järgmisel kuul vajan?'],
+      texts: { sosLabel: 'Tunnen tungi reageerida või ühendust võtta', sosNameMore: 'Sellest tundest praegu tegutsemine toob harva kergendust, mida lubab. Laine möödub enne.' }
+    },
+    stress: {
+      quotes: ['See on stress, mitte otsus.', 'Üks asi korraga.', 'Puhkus on osa tööst.', 'Võin seda tunda ja ikkagi ise valida, mida teen.', 'Kõigepealt uni. Kell neli öösel tundub kõik raskem.', 'Enamik muresid ei juhtu kunagi.', 'Tehtud on parem kui täiuslik.', 'Mul on lubatud öelda ei.', 'Ole enda vastu lahke. See on raske.', 'See tunne möödub.'],
+      rules: ['Töösõnumid ootavad tööajani.', 'Üks ülesanne korraga.', 'Mured lähevad parklasse, mitte öösse.', 'Iga 90 minuti järel paus.', 'Kurnatuna suuri otsuseid ei tee.', 'Küsi abi enne, kui asi liiga suureks läheb.'],
+      daily: [['Pärast tööaega töömeili ei kontrollinud', true], ['Üks päris paus'], ['Öösel suuri järeldusi ei teinud'], ['Telefon on magamistoast väljas'], ['Liigutasin keha'], ['Midagi ainult enda jaoks']],
+      checkpoint: ['Kuidas on mu uni ja üldine heaolu?', 'Mis mind kõige rohkem kurnab ja kas see saab muutuda?', 'Mis annab mulle energiat?', 'Kas mu koormus on õiglane ja jätkusuutlik?', 'Millest saan lahti lasta?'],
+      texts: { sosLabel: 'Tunnen end ülekoormatuna', sosName: 'See on stress, mitte info.', sosNameMore: 'Kiirustades tegutsemine või tugevam muretsemine ei too rahu. Mõni minut aeglustamist toob.' }
+    }
+  }
+};
+// review: Brazilian Portuguese starter content, drafted by Claude 2026-10-14
+CONTENT['pt-BR'] = {
+  base: {
+    texts: {
+      sosLabel: 'Sinto vontade de checar ou reagir',
+      sosName: 'Isso é ansiedade, não informação.',
+      sosNameMore: 'Checar ou mandar mensagem agora não vai trazer a calma que você procura. O que você encontrar vai alimentar a preocupação.',
+      nightText: 'Pensamentos da noite não são dados. Nada de grandes conclusões antes de amanhecer. Celular virado para baixo, fora do quarto.'
+    },
+    moves: ['Dar uma volta no quarteirão', 'Escadas ou 15 flexões', 'Um copo de água ao ar livre', 'Algo com as mãos (louça, arrumação)', '10 minutos de um hobby', 'Brincar com seu filho ou seu bicho', 'Alongar por 5 minutos'],
+    habits: [['Exercício', 3], ['Tempo com um amigo ou a família', 1], ['Uma noite inteira só para mim', 1], ['Revisão semanal', 1, true]],
+    reviewPrompts: ['O que deu certo?', 'O que me preocupou?', 'Quais preocupações se realizaram?', 'Uma coisa para a próxima semana'],
+    once: [
+      ['Esconder o "visto por último" e as confirmações de leitura no seu app de mensagens', 'No WhatsApp fica em Configurações, Privacidade, Visto por último e online. Os menus mudam, então confira no seu app.'],
+      ['Silenciar no horário de trabalho a conversa que dispara a ansiedade', ''],
+      ['Marcar consulta com um psicólogo ou terapeuta', ''],
+      ['Mandar mensagem para um amigo', ''],
+      ['Pôr um alarme para a hora de dormir', '']
+    ],
+    why: [
+      'A incerteza liga o sistema de alarme do cérebro. Um celular em silêncio é pura incerteza.',
+      'Feridas antigas podem fazer o silêncio parecer perigo, mesmo quando nada está errado.',
+      'Estresse, solidão e sono ruim aumentam cada sentimento.',
+      'O começo de um relacionamento, ou uma grande mudança de vida, é quando a incerteza é maior.',
+      'Checar traz um alívio rápido e pouco confiável, e é justamente isso que vira hábito.'
+    ],
+    helps: ['Primeiro o sono.', 'Movimento.', 'Pessoas fora do relacionamento.', 'Seus próprios projetos.', 'Um psicólogo ou terapeuta.', 'Orientação jurídica ou prática para grandes decisões.', 'Use IA ou amigos para decisões, não para pedir tranquilização o tempo todo.']
+  },
+  packs: {
+    relationship: {
+      quotes: ['Isso é ansiedade, não informação.', 'Checar não me dá a calma que eu procuro.', 'Silêncio não é mensagem.', 'Julgue pelas atitudes ao vivo, ao longo de semanas.', 'A pressão é o meu alarme, não um fato sobre a outra pessoa.', 'Cada impulso que eu atravesso ensina ao meu cérebro que esperar é suportável.', 'Menos mensagens, mais leves. Mais tempo junto de verdade.', 'Diga suas necessidades em voz alta, com calma, pessoalmente.', 'Primeiro o sono. Tudo pesa mais às 4 da manhã.', 'Posso sentir isso e ainda escolher o que faço.', 'A maioria das preocupações nunca acontece.', 'Seja gentil consigo. Isso é difícil.'],
+      rules: ['Uma pergunta de cada vez.', 'Nada de mensagem de cobrança em menos de duas horas.', 'Assuntos pesados só pessoalmente.', 'Um pedido de desculpas basta.', 'Silêncio não é mensagem.', 'Julgue pelas atitudes ao longo de semanas, não por mensagens soltas.'],
+      daily: [['Hoje não chequei se a pessoa está online', true], ['Nenhuma mensagem de cobrança em menos de duas horas'], ['Nenhuma grande conclusão à noite'], ['Celular fora do quarto'], ['Mexi o corpo'], ['Algo só para mim']],
+      checkpoint: ['Eu me sinto bem e em segurança com essa pessoa, ao vivo?', 'Os planos costumam ser cumpridos ou trocados por uma nova data?', 'O esforço é mútuo?', 'As necessidades que eu disse com clareza foram atendidas pelo menos em parte?', 'Como estão meu sono e meu bem-estar em geral?'],
+      habits: [['Exercício', 3], ['Um contato social fora do relacionamento', 1], ['Uma noite inteira só para mim', 1], ['Revisão semanal', 1, true]]
+    },
+    separation: {
+      quotes: ['O luto vem em ondas. Deixe esta passar.', 'Não preciso decidir meu futuro inteiro hoje à noite.', 'Culpa significa que eu me importo. Não significa que sou ruim.', 'Uma pequena coisa boa hoje já basta.', 'Isso é ansiedade, não informação.', 'Posso sentir isso e ainda escolher o que faço.', 'Primeiro o sono. Tudo pesa mais às 4 da manhã.', 'Seja gentil consigo. Isso é difícil.', 'A maioria das preocupações nunca acontece.', 'Conversas difíceis vão melhor com descanso e de dia.'],
+      rules: ['Nada de grandes decisões à noite.', 'Uma conversa difícil de cada vez.', 'Assuntos práticos por escrito, sentimentos pessoalmente ou com apoio.', 'Um pedido de desculpas basta.', 'As crianças ficam fora das conversas de adultos.', 'Peça orientação antes de assinar qualquer coisa.'],
+      daily: [['Hoje não chequei as redes sociais da pessoa', true], ['Não respondi a uma mensagem difícil em menos de duas horas'], ['Nenhuma grande conclusão à noite'], ['Fiz uma refeição de verdade'], ['Mexi o corpo'], ['Conversei com alguém que se importa comigo']],
+      checkpoint: ['Como estão meu sono e meu bem-estar em geral?', 'Tenho o apoio de que preciso?', 'Quais decisões podem esperar e quais não podem?', 'Estou decidindo pela calma ou pelo medo?', 'Do que eu preciso no próximo mês?'],
+      texts: { sosLabel: 'Sinto vontade de reagir ou procurar a pessoa', sosNameMore: 'Agir a partir deste sentimento agora raramente traz o alívio que promete. A onda passa antes.' }
+    },
+    stress: {
+      quotes: ['Isso é estresse, não um veredito.', 'Uma coisa de cada vez.', 'Descansar faz parte do trabalho.', 'Posso sentir isso e ainda escolher o que faço.', 'Primeiro o sono. Tudo pesa mais às 4 da manhã.', 'A maioria das preocupações nunca acontece.', 'Feito é melhor que perfeito.', 'Eu posso dizer não.', 'Seja gentil consigo. Isso é difícil.', 'Este sentimento vai passar.'],
+      rules: ['Mensagens de trabalho esperam o horário de trabalho.', 'Uma tarefa de cada vez.', 'Preocupações vão para o estacionamento, não para a noite.', 'Uma pausa a cada 90 minutos.', 'Nada de grandes decisões quando o cansaço é grande.', 'Peça ajuda antes que fique demais.'],
+      daily: [['Não chequei e-mail de trabalho fora do horário', true], ['Uma pausa de verdade'], ['Nenhuma grande conclusão à noite'], ['Celular fora do quarto'], ['Mexi o corpo'], ['Algo só para mim']],
+      checkpoint: ['Como estão meu sono e meu bem-estar em geral?', 'O que mais me cansa, e isso pode mudar?', 'O que me dá energia?', 'Minha carga é justa e sustentável?', 'Do que posso abrir mão?'],
+      texts: { sosLabel: 'Está tudo pesado demais agora', sosName: 'Isso é estresse, não informação.', sosNameMore: 'Agir com pressa ou se preocupar mais não traz calma. Alguns minutos mais devagar trazem.' }
+    }
+  }
+};
+
+// Verified 2026-10-14, see HELP-NUMBERS.md. Re-check before every release.
+var NUMBERS = {
+  EE: [['n_emergency', '112'], ['n_116123', '116 123'], ['n_eluliin_et', '655 8088'], ['n_eluliin_ru', '655 5688'], ['n_victim', '116 006'], ['n_fam', '1220']],
+  BR: [['n_samu', '192'], ['n_cvv', '188']],
+  PT: [['n_emergency', '112'], ['n_sns', '808 24 24 24']],
+  OTHER: []
+};
+var PACKS = ['relationship', 'separation', 'stress'];
+var LISTS = ['quotes', 'rules', 'daily', 'once', 'moves', 'habits', 'reviewPrompts', 'checkpoint', 'why', 'helps', 'texts'];
+var PATHS = { quotes: ['quotes'], rules: ['rules'], daily: ['daily'], once: ['once'], moves: ['moves'], habits: ['habits'], reviewPrompts: ['reviewPrompts'], checkpoint: ['checkpoint', 'questions'], why: ['help', 'why'], helps: ['help', 'helps'], texts: ['texts'], numbers: ['help', 'customNumbers'] };
+var PREFIX = { quotes: 'q', rules: 'r', daily: 'd', once: 'o', moves: 'm', habits: 'h' };
+
+// ===================== helpers =====================
+var D = null;
+function now() { return Date.now(); }
+function uid() { var a = new Uint8Array(8); crypto.getRandomValues(a); var s = ''; for (var i = 0; i < a.length; i++) s += (a[i] % 36).toString(36); return s; }
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function h(tag, attrs) {
+  var el = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(function (k) {
+    var v = attrs[k];
+    if (v === null || v === undefined || v === false) return;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+    else if (k === 'value') el.value = v;
+    else if (k === 'checked') el.checked = true;
+    else el.setAttribute(k, v === true ? '' : v);
+  });
+  for (var i = 2; i < arguments.length; i++) addKid(el, arguments[i]);
+  return el;
+}
+function addKid(el, c) {
+  if (c === null || c === undefined || c === false) return;
+  if (Array.isArray(c)) { c.forEach(function (x) { addKid(el, x); }); return; }
+  el.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+}
+var ICONS = {
+  now: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/>',
+  daily: '<path d="M4 7l2 2 3-3M4 15l2 2 3-3M12 8h8M12 16h8"/>',
+  journal: '<path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M6 17a2 2 0 0 1 2-2h10"/>',
+  week: '<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  help: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M6.4 6.4l3.1 3.1M14.5 14.5l3.1 3.1M17.6 6.4l-3.1 3.1M9.5 14.5l-3.1 3.1"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M6 6l1.8 1.8M16.2 16.2L18 18M6 18l1.8-1.8M16.2 7.8L18 6"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  tick: '<path d="M6 12.5l4 4 8-9"/>',
+  up: '<path d="M7 14l5-5 5 5"/>', down: '<path d="M7 10l5 5 5-5"/>', remove: '<path d="M6 6l12 12M18 6L6 18"/>', back: '<path d="M14 6l-6 6 6 6"/>'
+};
+function icon(name) {
+  var s = h('span', { 'aria-hidden': 'true', style: 'display:inline-flex' });
+  s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
+  return s;
+}
+function t(k, vars) {
+  var L = STR[D.settings.lang] || STR.en;
+  var s = L[k];
+  if (s === undefined) { console.error('Missing i18n key: ' + k + ' (' + D.settings.lang + ')'); s = STR.en[k] !== undefined ? STR.en[k] : k; }
+  if (vars) s = s.replace(/\{(\w+)\}/g, function (m, n) { return vars[n] !== undefined ? vars[n] : m; });
+  return s;
+}
+function locale() { return D.settings.lang === 'en' ? 'en-GB' : D.settings.lang; }
+function fmt(opts, ts) { return new Intl.DateTimeFormat(locale(), opts).format(new Date(ts)); }
+function fmtTime(ts) { return fmt({ hour: '2-digit', minute: '2-digit' }, ts); }
+function fmtLongDay(ts) { return fmt({ weekday: 'long', day: 'numeric', month: 'long' }, ts); }
+function fmtDate(ts) { return fmt({ day: 'numeric', month: 'short', year: 'numeric' }, ts); }
+function fmtNum(n, d) { return new Intl.NumberFormat(locale(), { minimumFractionDigits: d, maximumFractionDigits: d }).format(n); }
+function mmss(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ':' + pad(sec % 60); }
+function hm(s) { var p = String(s || '00:00').split(':'); return (+p[0]) * 60 + (+p[1] || 0); }
+function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dayKey(ts) { return ymd(new Date(ts - hm(D.settings.dailyReset) * 60000)); }
+function isoWeek(y, m, d) {
+  var dt = new Date(Date.UTC(y, m - 1, d));
+  var wd = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - wd);
+  var y0 = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  return dt.getUTCFullYear() + '-W' + pad(Math.ceil(((dt - y0) / 86400000 + 1) / 7));
+}
+function weekKey(ts) {
+  var k = dayKey(ts).split('-').map(Number);
+  var dt = new Date(Date.UTC(k[0], k[1] - 1, k[2]));
+  if (D.settings.weekStart === 0 && dt.getUTCDay() === 0) dt.setUTCDate(dt.getUTCDate() + 1);
+  return isoWeek(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate());
+}
+function isNight(ts) {
+  var d = new Date(ts), m = d.getHours() * 60 + d.getMinutes();
+  var s = hm(D.settings.night.start), e = hm(D.settings.night.end);
+  if (s === e) return false;
+  return s < e ? (m >= s && m < e) : (m >= s || m < e);
+}
+function telHref(n) { return 'tel:' + n.replace(/[^0-9+]/g, ''); }
+function pick(arr, seed) { return arr.length ? arr[Math.abs(seed) % arr.length] : null; }
+
+// ===================== store =====================
+var storageOK = true;
+(function probe() { try { localStorage.setItem('steady_probe', '1'); localStorage.removeItem('steady_probe'); } catch (e) { storageOK = false; } })();
+function readRaw() { if (!storageOK) return null; try { return localStorage.getItem(KEY); } catch (e) { storageOK = false; return null; } }
+function writeRaw(s) { if (!storageOK) return false; try { localStorage.setItem(KEY, s); return true; } catch (e) { storageOK = false; showStorageNotice(); return false; } }
+var saveTimer = null;
+function save() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
+function saveNow() { clearTimeout(saveTimer); saveTimer = null; writeRaw(JSON.stringify(D)); }
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveNow(); });
+window.addEventListener('pagehide', saveNow);
+
+function detectLang() {
+  var l = ((navigator.languages && navigator.languages[0]) || navigator.language || 'en').toLowerCase();
+  if (l.indexOf('et') === 0) return 'et';
+  if (l.indexOf('pt') === 0) return 'pt-BR';
+  return 'en';
+}
+function detectCountry() {
+  var l = ((navigator.languages && navigator.languages[0]) || navigator.language || '').toUpperCase();
+  if (l.indexOf('-EE') > 0 || l === 'ET') return 'EE';
+  if (l.indexOf('-BR') > 0) return 'BR';
+  if (l.indexOf('-PT') > 0) return 'PT';
+  if (l.indexOf('PT') === 0) return 'BR';
+  return 'OTHER';
+}
+function defaultSettings() {
+  return {
+    lang: detectLang(), country: detectCountry(), name: '', theme: 'light',
+    night: { start: '22:00', end: '07:00' }, dailyReset: '04:00', weekStart: 1,
+    sos: { pattern: [4, 0, 6, 0], breathSec: 120, waveMin: 15, vibrate: false, showRule: true, showEvidence: true, nightLine: true },
+    pack: 'relationship', onboarded: false, statNoChecking: true, worryDur: 120
+  };
+}
+function emptyDoc() {
+  return {
+    schema: 1, settings: defaultSettings(),
+    content: { quotes: [], rules: [], daily: [], once: [], moves: [], habits: [], reviewPrompts: [], checkpoint: { date: null, questions: [] }, help: { why: [], helps: [], customNumbers: [] }, texts: {}, meta: { edited: {} } },
+    state: { dailyChecks: {}, onceDone: {}, weekChecks: {}, sosInProgress: null, journalDraft: null, reviewDraft: null, checkpointNotes: '' },
+    records: { urges: [], worries: [], journal: [], evidence: [], reviews: [] }
+  };
+}
+function getList(k) { var p = PATHS[k], o = D.content; for (var i = 0; i < p.length; i++) o = o[p[i]]; return o; }
+function setList(k, v) { var p = PATHS[k], o = D.content; for (var i = 0; i < p.length - 1; i++) o = o[p[i]]; o[p[p.length - 1]] = v; }
+function starterList(k, lang, pack) {
+  var C = CONTENT[lang] || CONTENT.en, P = C.packs[pack] || C.packs.relationship;
+  if (k === 'texts') return Object.assign({}, C.base.texts, P.texts || {});
+  var raw = P[k] !== undefined ? P[k] : C.base[k];
+  var pre = PREFIX[k];
+  if (!pre) return raw.slice();
+  return raw.map(function (x, i) {
+    var id = pre + (i + 1);
+    if (k === 'daily') return { id: id, text: x[0], noChecking: !!x[1] };
+    if (k === 'once') return { id: id, text: x[0], howTo: x[1] || '' };
+    if (k === 'habits') return { id: id, text: x[0], target: x[1], isReview: !!x[2] };
+    return { id: id, text: x };
+  });
+}
+function applyStarter(onlyUnedited) {
+  LISTS.forEach(function (k) {
+    if (onlyUnedited && D.content.meta.edited[k]) return;
+    setList(k, starterList(k, D.settings.lang, D.settings.pack));
+    D.content.meta.edited[k] = false;
+  });
+}
+function fill(target, defaults) {
+  Object.keys(defaults).forEach(function (k) {
+    if (target[k] === undefined || target[k] === null && defaults[k] !== null) { if (target[k] === undefined) target[k] = clone(defaults[k]); }
+    else if (defaults[k] && typeof defaults[k] === 'object' && !Array.isArray(defaults[k]) && typeof target[k] === 'object') fill(target[k], defaults[k]);
+  });
+  return target;
+}
+function migrate(data) {
+  if (!data || typeof data !== 'object' || typeof data.schema !== 'number') return null;
+  if (data.schema > 1) return null;
+  // schema 1 is the first version; future versions add steps here
+  var base = emptyDoc();
+  fill(data, base);
+  if (!data.settings.lang || !STR[data.settings.lang]) data.settings.lang = 'en';
+  return data;
+}
+function freshDoc() { D = emptyDoc(); applyStarter(false); return D; }
+function load() {
+  var raw = readRaw(), parsed = null;
+  if (raw) { try { parsed = migrate(JSON.parse(raw)); } catch (e) { parsed = null; } }
+  D = parsed || freshDoc();
+}
+function markEdited(k) { D.content.meta.edited[k] = true; save(); }
+
+// ===================== app shell =====================
+var app = document.getElementById('app');
+var ui = { pulse: false, offerEvidence: null, worryYes: {}, lastSummary: null, importText: '', importParsed: null, exportText: null, ob: 0, sig: '' };
+function route() { return (location.hash || '#now').slice(1); }
+function go(r) { if (route() === r) render(); else location.hash = '#' + r; }
+window.addEventListener('hashchange', function () { render(true); });
+function toast(text) {
+  var old = document.querySelector('.toast'); if (old) old.remove();
+  var el = h('div', { class: 'toast', role: 'status' }, text);
+  document.body.appendChild(el);
+  setTimeout(function () { el.remove(); }, 3200);
+}
+function announce(text) { var l = document.getElementById('live'); if (l) l.textContent = text; }
+function showStorageNotice() { if (!document.querySelector('.storage-off') && app.firstChild) { var m = document.querySelector('main'); if (m) m.insertBefore(h('div', { class: 'notice storage-off', role: 'status' }, t('storage_off')), m.firstChild); } }
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', D.settings.theme);
+  document.documentElement.lang = D.settings.lang;
+  var dark = D.settings.theme === 'dark' || (D.settings.theme === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  var meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', dark ? '#18201d' : '#eef2ee');
+}
+var TABS = [['now', 'nav_now'], ['daily', 'nav_daily'], ['journal', 'nav_journal'], ['week', 'nav_week'], ['help', 'nav_help']];
+var timers = [], wakeLock = null;
+function stopTimers() { timers.forEach(clearInterval); timers = []; releaseWake(); }
+function every(ms, fn) { timers.push(setInterval(fn, ms)); }
+function wake() { try { if (navigator.wakeLock && !wakeLock) navigator.wakeLock.request('screen').then(function (l) { wakeLock = l; }).catch(function () {}); } catch (e) {} }
+function releaseWake() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+
+function render(tabChange) {
+  applyTheme();
+  stopTimers();
+  var r = route();
+  ui.sig = signature();
+  if (!D.settings.onboarded) { app.replaceChildren(onboardingView()); return; }
+  if (r === 'sos') { app.replaceChildren(sosView()); return; }
+  var tab = r.split('/')[0];
+  var views = { now: nowView, daily: dailyView, journal: journalView, week: weekView, help: helpView, settings: settingsView };
+  var view = views[tab] || nowView;
+  var main = h('main', { class: tabChange ? 'wrap enter' : 'wrap', id: 'main' }, view(r));
+  if (!storageOK) main.insertBefore(h('div', { class: 'notice storage-off', role: 'status' }, t('storage_off')), main.firstChild);
+  var header = h('header', { class: 'top' },
+    h('div', {}, h('div', { class: 'brand' }, 'Steady'), h('div', { class: 'date' }, fmtLongDay(now()))),
+    h('a', { class: 'iconbtn', href: '#settings', 'aria-label': t('settings') }, icon('gear')));
+  var nav = h('nav', { class: 'tabs', 'aria-label': 'Steady' }, TABS.map(function (x) {
+    return h('a', { href: '#' + x[0], 'aria-current': tab === x[0] ? 'page' : null }, icon(x[0]), h('span', {}, t(x[1])));
+  }));
+  app.replaceChildren(header, main, nav);
+  if (tabChange) window.scrollTo(0, 0);
+}
+function signature() { return [isNight(now()), dueWorries().length, dayKey(now()), weekKey(now())].join('|'); }
+setInterval(function () {
+  if (!D || !D.settings.onboarded || route() === 'sos') return;
+  var s = signature();
+  var a = document.activeElement;
+  var typing = a && (a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' || (a.tagName === 'INPUT' && ['checkbox', 'radio', 'button'].indexOf(a.type) < 0));
+  if (s !== ui.sig && !typing) render();
+}, TEST ? 5000 : 30000);
+
+// ===================== common pieces =====================
+function card(label, kids, extra) { return h('section', Object.assign({ class: 'card' }, extra || {}), label ? h('h2', { class: 'label' }, label) : null, kids); }
+function editLink(k) { return h('a', { class: 'btn text small', href: '#settings/' + k }, t('edit_list')); }
+function numbersList(compact) {
+  var c = D.settings.country, list = NUMBERS[c] || [];
+  var rows = list.map(function (n) { return h('div', { class: 'num' }, h('span', { class: 'grow' }, t(n[0])), h('a', { href: telHref(n[1]) }, n[1])); });
+  var mine = (D.content.help.customNumbers || []).filter(function (n) { return n.number; }).map(function (n) { return h('div', { class: 'num' }, h('span', { class: 'grow' }, n.label || t('h_mine')), h('a', { href: telHref(n.number) }, n.number)); });
+  if (compact) rows = rows.slice(0, 3);
+  var out = rows.concat(mine);
+  if (c === 'OTHER') out.unshift(h('p', {}, t('h_other')));
+  if (!mine.length && (c === 'OTHER' || !list.length)) out.push(h('p', { class: 'small muted' }, t('h_add_local')));
+  return h('div', {}, out);
+}
+
+// ===================== Now =====================
+function dueWorries() { return D.records.worries.filter(function (w) { return w.status === 'parked' && w.dueAt <= now(); }); }
+function stats() {
+  var u = D.records.urges, scored = u.filter(function (x) { return typeof x.before === 'number' && typeof x.after === 'number'; });
+  var drop = scored.length ? scored.reduce(function (s, x) { return s + (x.before - x.after); }, 0) / scored.length : 0;
+  var faded = D.records.worries.filter(function (w) { return w.status === 'faded'; }).length;
+  return { urges: u.length, drop: drop, faded: faded, nc: noCheckDays() };
+}
+function noCheckDays() {
+  var items = D.content.daily.filter(function (x) { return x.noChecking; });
+  if (!items.length) return null;
+  var days = Object.keys(D.state.dailyChecks).filter(function (k) { var c = D.state.dailyChecks[k] || {}; return items.every(function (i) { return c[i.id]; }); }).sort();
+  var best = 0, run = 0, prev = null;
+  days.forEach(function (k) {
+    var d = Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10));
+    run = prev !== null && d - prev === 86400000 ? run + 1 : 1;
+    if (run > best) best = run; prev = d;
+  });
+  return { count: days.length, best: best };
+}
+function nowView() {
+  var kids = [], ts = now();
+  if (D.content.checkpoint.date && D.content.checkpoint.date === dayKey(ts)) kids.push(h('div', { class: 'banner' }, t('checkpoint_today')));
+  if (isNight(ts) && D.content.texts.nightText) kids.push(h('div', { class: 'banner', role: 'note' }, h('strong', {}, t('night_label') + '. '), D.content.texts.nightText));
+  if (D.settings.name) kids.push(h('p', { class: 'greet' }, t('hello', { name: D.settings.name })));
+  var qs = D.content.quotes.filter(function (q) { return q.text; });
+  if (qs.length) {
+    var k = dayKey(ts), dn = Math.floor(Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10)) / 86400000);
+    kids.push(card(t('quote_label'), h('p', { class: 'quote' }, pick(qs, dn).text)));
+  }
+  var inProg = !!D.state.sosInProgress;
+  var sosBtn = h('button', { class: 'sos' + (ui.pulse ? ' pulse' : ''), id: 'sosBtn', onclick: function () { startSos(false); } },
+    h('span', { class: 't' }, D.content.texts.sosLabel || STR.en.nav_now), h('span', { class: 's' }, inProg ? t('sos_resume') : t('sos_sub')));
+  ui.pulse = false;
+  kids.push(sosBtn);
+  if (inProg) kids.push(h('div', { class: 'row end' }, h('button', { class: 'btn text', onclick: function () { startSos(true); } }, t('sos_restart'))));
+  kids.push(worryCard());
+  kids.push(statsCard());
+  return kids;
+}
+function statsCard() {
+  var s = stats();
+  var tiles = [
+    h('div', { class: 'stat' }, h('div', { class: 'v' }, String(s.urges)), h('div', { class: 'k' }, t('stat_urges'))),
+    h('div', { class: 'stat' }, h('div', { class: 'v' }, fmtNum(s.drop, 1)), h('div', { class: 'k' }, t('stat_drop'))),
+    h('div', { class: 'stat' }, h('div', { class: 'v' }, String(s.faded)), h('div', { class: 'k' }, t('stat_faded')))
+  ];
+  if (D.settings.statNoChecking && s.nc) tiles.push(h('div', { class: 'stat' }, h('div', { class: 'v' }, String(s.nc.count)), h('div', { class: 'k' }, t('stat_nocheck')), h('div', { class: 'b' }, t('stat_best', { n: s.nc.best }))));
+  return card(t('stats_label'), h('div', { class: 'stats' }, tiles));
+}
+function worryDurations() { var d = [30, 60, 120, 240, 'morning']; if (TEST) d.unshift(1); return d; }
+function durLabel(d) { return d === 'morning' ? t('dur_morning') : t('dur_' + d); }
+function dueFor(d) {
+  var ts = now();
+  if (d !== 'morning') return ts + d * 60000;
+  var e = hm(D.settings.night.end), dt = new Date(ts); dt.setHours(Math.floor(e / 60), e % 60, 0, 0);
+  if (dt.getTime() <= ts) dt.setDate(dt.getDate() + 1);
+  return dt.getTime();
+}
+function worryCard() {
+  var input = h('input', { type: 'text', id: 'worryText', placeholder: t('worry_ph'), 'aria-label': t('worry_ph'), maxlength: '500' });
+  var durs = worryDurations();
+  if (durs.indexOf(D.settings.worryDur) < 0) D.settings.worryDur = 120;
+  var sel = h('select', { id: 'worryDur', 'aria-label': t('worry_for'), onchange: function (e) { var v = e.target.value; D.settings.worryDur = v === 'morning' ? v : +v; save(); render(); } },
+    durs.map(function (d) { return h('option', { value: String(d), selected: String(d) === String(D.settings.worryDur) }, durLabel(d)); }));
+  var parkLabel = D.settings.worryDur === 'morning' ? t('worry_park_morning') : t('worry_park', { d: durLabel(D.settings.worryDur) });
+  var park = h('button', { class: 'btn', id: 'parkBtn', onclick: function () {
+    var txt = input.value.trim(); if (!txt) { input.focus(); return; }
+    D.records.worries.push({ id: uid(), t: now(), text: txt, dueAt: dueFor(D.settings.worryDur), status: 'parked', keptAction: null });
+    saveNow(); render(); toast(t('saved'));
+  } }, parkLabel);
+  var list = D.records.worries.filter(function (w) { return w.status === 'parked' || (w.status === 'kept' && !w.cleared); }).sort(function (a, b) { return a.dueAt - b.dueAt; });
+  var items = list.map(worryItem);
+  var offer = null;
+  if (ui.offerEvidence) {
+    var ei = h('input', { type: 'text', value: ui.offerEvidence.text, 'aria-label': t('ev_ph') });
+    offer = h('div', { class: 'due' }, h('p', {}, t('evidence_offer')), ei, h('div', { class: 'actions' },
+      h('button', { class: 'btn', onclick: function () { addEvidence(ei.value); ui.offerEvidence = null; render(); } }, t('add')),
+      h('button', { class: 'btn text', onclick: function () { ui.offerEvidence = null; render(); } }, t('not_now'))));
+  }
+  return card(t('worry_label'), [input, h('div', { class: 'row', style: 'margin-top:10px' }, h('div', { class: 'grow' }, sel), park), offer,
+    h('div', { style: 'margin-top:12px' }, items.length ? items : h('p', { class: 'small muted' }, t('worry_none')))]);
+}
+function worryItem(w) {
+  var ts = now();
+  var head = h('div', {}, h('div', {}, w.text));
+  if (w.status === 'kept') {
+    return h('div', { class: 'worry' }, head, h('div', { class: 'row' }, h('span', { class: 'when grow' }, t('worry_kept_' + w.keptAction)),
+      h('button', { class: 'btn text', onclick: function () { w.cleared = true; saveNow(); render(); } }, t('worry_remove'))));
+  }
+  if (w.dueAt > ts) {
+    var tomorrow = ymd(new Date(w.dueAt)) !== ymd(new Date(ts));
+    return h('div', { class: 'worry' }, head, h('div', { class: 'when' }, t(tomorrow ? 'worry_look_tomorrow' : 'worry_look', { time: fmtTime(w.dueAt) })));
+  }
+  var body;
+  if (ui.worryYes[w.id]) {
+    body = h('div', { class: 'chips' }, ['raise', 'journal', 'review'].map(function (a) {
+      return h('button', { class: 'chip', onclick: function () {
+        w.status = 'kept'; w.keptAction = a; delete ui.worryYes[w.id];
+        if (a === 'journal') { w.cleared = true; D.state.journalDraft = Object.assign(emptyJournal(), D.state.journalDraft || {}, { story: w.text }); saveNow(); go('journal'); return; }
+        saveNow(); render();
+      } }, t('worry_' + a));
+    }));
+  } else {
+    body = h('div', { class: 'actions' },
+      h('button', { class: 'btn', onclick: function () { w.status = 'faded'; ui.offerEvidence = { text: w.text }; saveNow(); render(); } }, t('worry_faded')),
+      h('button', { class: 'btn ghost', onclick: function () { ui.worryYes[w.id] = true; render(); } }, t('worry_yes')));
+  }
+  return h('div', { class: 'worry' }, head, h('div', { class: 'due' }, h('strong', {}, t('worry_due')), body));
+}
+function addEvidence(text) { text = String(text || '').trim(); if (!text) return; D.records.evidence.unshift({ id: uid(), t: now(), text: text }); saveNow(); toast(t('saved')); }
+
+// ===================== SOS =====================
+function startSos(restart) {
+  if (restart || !D.state.sosInProgress) {
+    D.state.sosInProgress = { step: 1, before: null, after: null, t0: now(), night: isNight(now()), breathStart: null, waveEnd: null, move: null, seed: Math.floor(Math.random() * 100000) };
+  }
+  ui.lastSummary = null; saveNow(); go('sos');
+}
+function setStep(n) {
+  var S = D.state.sosInProgress; if (!S) return;
+  S.step = n;
+  if (n === 3 && !S.breathStart) S.breathStart = now();
+  if (n === 5 && !S.waveEnd) S.waveEnd = now() + D.settings.sos.waveMin * 60000;
+  saveNow(); render();
+}
+function finishSos() {
+  var S = D.state.sosInProgress; if (!S) return;
+  var rec = { id: uid(), t: now(), before: S.before, after: S.after, night: !!S.night };
+  D.records.urges.push(rec);
+  D.state.sosInProgress = null; ui.lastSummary = rec; saveNow(); render();
+}
+function scaleRow(value, onpick) {
+  var btns = [];
+  for (var i = 0; i <= 10; i++) (function (n) {
+    btns.push(h('button', { 'aria-pressed': value === n ? 'true' : 'false', 'aria-label': t('scale_aria', { n: n }), onclick: function () { onpick(n); } }, String(n)));
+  })(i);
+  return h('div', { class: 'scale', role: 'group' }, btns);
+}
+function sosView() {
+  if (ui.lastSummary) return summaryView(ui.lastSummary);
+  if (!D.state.sosInProgress) { D.state.sosInProgress = { step: 1, before: null, after: null, t0: now(), night: isNight(now()), breathStart: null, waveEnd: null, move: null, seed: Math.floor(Math.random() * 100000) }; saveNow(); }
+  var S = D.state.sosInProgress;
+  var prog = h('div', { class: 'progress', 'aria-hidden': 'true' }, [1, 2, 3, 4, 5, 6].map(function (i) { return h('span', { class: i <= S.step ? 'on' : '' }); }));
+  var bar = h('div', { class: 'bar' }, h('span', { class: 'label', style: 'margin:0' }, t('sos_step', { n: S.step })),
+    h('button', { class: 'iconbtn', 'aria-label': t('sos_leave'), onclick: function () { go('now'); } }, icon('close')));
+  var body = [stepOne, stepTwo, stepThree, stepFour, stepFive, stepSix][S.step - 1](S);
+  return h('div', { class: 'sosview' }, bar, prog, body);
+}
+function skipBtn(n) { return h('button', { class: 'btn text', onclick: function () { if (n === 7) finishSos(); else setStep(n); } }, t('skip')); }
+function stepOne(S) {
+  var kids = [h('h1', {}, t('s1_title')), h('p', { class: 'muted' }, t('s1_hint')), scaleRow(S.before, function (n) { S.before = n; saveNow(); render(); })];
+  if (S.before >= 9) kids.push(safetyCard());
+  kids.push(h('div', { class: 'actions' }, h('button', { class: 'btn', disabled: S.before === null ? true : null, onclick: function () { setStep(2); } }, t('next')), skipBtn(2)));
+  return kids;
+}
+function safetyCard() {
+  return h('div', { class: 'safety', role: 'note' }, h('strong', {}, t('safety_title')), h('p', {}, t('safety_body')), numbersList(true),
+    h('a', { class: 'btn text', href: '#help' }, t('safety_help')));
+}
+function stepTwo(S) {
+  var tx = D.content.texts;
+  var kids = [h('h1', {}, t('s2_title')), h('p', { class: 'big' }, tx.sosName || ''), tx.sosNameMore ? h('p', {}, tx.sosNameMore) : null];
+  if (S.night && D.settings.sos.nightLine) kids.push(h('div', { class: 'banner' }, t('s2_night')));
+  var rule = D.settings.sos.showRule ? pick(D.content.rules.filter(function (r) { return r.text; }), S.seed) : null;
+  if (rule) kids.push(h('div', { class: 'card' }, h('h2', { class: 'label' }, t('s2_rule')), h('p', { class: 'quote' }, rule.text)));
+  var ev = D.settings.sos.showEvidence ? pick(D.records.evidence, S.seed + 7) : null;
+  if (ev) kids.push(h('div', { class: 'card' }, h('h2', { class: 'label' }, t('s2_evidence')), h('p', {}, ev.text)));
+  kids.push(h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: function () { setStep(3); } }, t('next')), skipBtn(3)));
+  return kids;
+}
+function phaseAt(sec) {
+  var p = D.settings.sos.pattern, names = ['in', 'hold', 'out', 'hold'];
+  var cyc = p[0] + p[1] + p[2] + p[3], pos = sec % cyc, acc = 0;
+  for (var i = 0; i < 4; i++) { if (!p[i]) continue; if (pos < acc + p[i]) return { i: i, name: names[i], len: p[i], cycle: Math.floor(sec / cyc) }; acc += p[i]; }
+  return { i: 0, name: 'in', len: p[0], cycle: 0 };
+}
+function stepThree(S) {
+  if (!S.breathStart) { S.breathStart = now(); saveNow(); }
+  var total = D.settings.sos.breathSec;
+  var label = h('span', {}, '');
+  var orb = h('div', { class: 'orb', id: 'orb' }, label);
+  var left = h('div', { class: 'timer', id: 'breathLeft' }, '');
+  var lastPhase = null, lastMin = null;
+  function tick() {
+    var el = (now() - S.breathStart) / 1000;
+    if (el >= total) { setStep(4); return; }
+    var ph = phaseAt(el), key = ph.cycle + ':' + ph.i;
+    if (key !== lastPhase) {
+      label.textContent = t('s3_' + ph.name, { n: ph.len });
+      orb.style.transitionDuration = ph.len + 's';
+      if (ph.name === 'in') orb.style.transform = 'scale(1)';
+      if (ph.name === 'out') orb.style.transform = 'scale(.62)';
+      if (lastPhase !== null && D.settings.sos.vibrate && navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+      lastPhase = key;
+    }
+    var rem = total - el;
+    left.textContent = t('s3_left', { t: mmss(rem) });
+    var m = Math.ceil(rem / 60);
+    if (m !== lastMin) { announce(m === 1 ? t('min_left_one') : t('min_left', { n: m })); lastMin = m; }
+  }
+  setTimeout(tick, 30);
+  every(250, tick);
+  wake();
+  return [h('h1', {}, t('s3_title')), h('div', { class: 'orbwrap' }, orb), left, h('div', { class: 'actions' }, skipBtn(4))];
+}
+function stepFour(S) {
+  var chips = D.content.moves.filter(function (m) { return m.text; }).map(function (m) {
+    return h('button', { class: 'chip', 'aria-pressed': S.move === m.id ? 'true' : 'false', onclick: function () { S.move = m.id; saveNow(); render(); } }, m.text);
+  });
+  return [h('h1', {}, t('s4_title')), h('p', { class: 'muted' }, t('s4_hint')), h('div', { class: 'chips' }, chips),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: function () { setStep(5); } }, t('s4_start')), skipBtn(5))];
+}
+function stepFive(S) {
+  if (!S.waveEnd) { S.waveEnd = now() + D.settings.sos.waveMin * 60000; saveNow(); }
+  var left = h('div', { class: 'timer', id: 'waveLeft' }, '');
+  var lastMin = null;
+  function tick() {
+    var rem = (S.waveEnd - now()) / 1000;
+    if (rem <= 0) { setStep(6); return; }
+    left.textContent = mmss(rem);
+    var m = Math.ceil(rem / 60);
+    if (m !== lastMin) { announce(m === 1 ? t('min_left_one') : t('min_left', { n: m })); lastMin = m; }
+  }
+  tick();
+  every(500, tick);
+  wake();
+  return [h('h1', {}, t('s5_title')), h('p', { class: 'big' }, t('s5_body')), left,
+    h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: function () { setStep(6); } }, t('s5_passed')), skipBtn(6))];
+}
+function stepSix(S) {
+  return [h('h1', {}, t('s6_title')), scaleRow(S.after, function (n) { S.after = n; saveNow(); render(); }),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', disabled: S.after === null ? true : null, onclick: finishSos }, t('s6_finish')), skipBtn(7))];
+}
+function summaryView(rec) {
+  var scored = typeof rec.before === 'number' && typeof rec.after === 'number';
+  var ei = h('input', { type: 'text', placeholder: t('sum_evidence_ph'), 'aria-label': t('sum_evidence_ph') });
+  return h('div', { class: 'sosview' },
+    h('div', { class: 'bar' }, h('span', {}), h('button', { class: 'iconbtn', 'aria-label': t('close'), onclick: function () { ui.lastSummary = null; go('now'); } }, icon('close'))),
+    h('h1', {}, t('sum_title')),
+    h('p', { class: 'big' }, scored ? t('sum_text', { a: rec.before, b: rec.after }) : t('sum_text_noscore')),
+    card(t('sum_evidence'), [ei, h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: function () { if (ei.value.trim()) { addEvidence(ei.value); ei.value = ''; } } }, t('add')))]),
+    h('div', { class: 'actions' }, h('button', { class: 'btn ghost', onclick: function () { ui.lastSummary = null; go('now'); } }, t('close'))));
+}
+
+// ===================== Daily =====================
+function checkRow(text, checked, onchange, idAttr) {
+  var inp = h('input', { type: 'checkbox', class: 'vh', checked: checked, 'data-id': idAttr, onchange: function (e) { onchange(e.target.checked); } });
+  return h('label', { class: 'check' }, inp, h('span', { class: 'box' }, icon('tick')), h('span', { class: 'txt grow' }, text));
+}
+function dailyView() {
+  var dk = dayKey(now());
+  var today = D.state.dailyChecks[dk] || {};
+  var daily = D.content.daily.filter(function (x) { return x.text; }).map(function (x) {
+    return checkRow(x.text, !!today[x.id], function (v) { D.state.dailyChecks[dk] = D.state.dailyChecks[dk] || {}; D.state.dailyChecks[dk][x.id] = v; save(); }, x.id);
+  });
+  var once = [];
+  D.content.once.filter(function (x) { return x.text; }).forEach(function (x) {
+    once.push(checkRow(x.text, !!D.state.onceDone[x.id], function (v) { D.state.onceDone[x.id] = v; save(); }, x.id));
+    if (x.howTo) once.push(h('details', { class: 'how' }, h('summary', {}, t('howto')), h('p', {}, x.howTo)));
+  });
+  var rules = D.content.rules.filter(function (x) { return x.text; });
+  return [
+    card(t('daily_today'), [h('p', { class: 'small muted' }, fmtLongDay(now())), daily.length ? h('div', {}, daily) : h('p', { class: 'muted' }, t('daily_empty')), h('div', { class: 'row end' }, editLink('daily'))], { id: 'dailyCard' }),
+    card(t('daily_once'), [once.length ? h('div', {}, once) : h('p', { class: 'muted' }, t('daily_empty')), h('div', { class: 'row end' }, editLink('once'))]),
+    card(t('daily_rules'), [rules.length ? h('ol', { class: 'rules' }, rules.map(function (r) { return h('li', {}, r.text); })) : h('p', { class: 'muted' }, t('daily_empty')), h('div', { class: 'row end' }, editLink('rules'))])
+  ];
+}
+
+// ===================== Journal =====================
+function emptyJournal() { return { editId: null, fact: '', story: '', alt: '', emotion: '', intensity: '', action: '' }; }
+function journalView() {
+  var J = D.state.journalDraft || (D.state.journalDraft = emptyJournal());
+  function field(key, label, area) {
+    var id = 'j_' + key;
+    var attrs = { id: id, value: J[key] || '', oninput: function (e) { J[key] = e.target.value; save(); } };
+    var el = area ? h('textarea', attrs) : h('input', Object.assign({ type: key === 'intensity' ? 'number' : 'text', min: key === 'intensity' ? '0' : null, max: key === 'intensity' ? '10' : null, inputmode: key === 'intensity' ? 'numeric' : null }, attrs));
+    if (area) el.value = J[key] || '';
+    return [h('label', { class: 'f', for: id }, label), el];
+  }
+  var form = card(t('j_label'), [
+    field('fact', t('j_fact'), true), field('story', t('j_story'), true), field('alt', t('j_alt'), true),
+    h('div', { class: 'row' }, h('div', { class: 'grow' }, field('emotion', t('j_emotion'))), h('div', { style: 'flex:0 0 9rem' }, field('intensity', t('j_intensity')))),
+    field('action', t('j_action'), true),
+    h('div', { class: 'actions' },
+      h('button', { class: 'btn', id: 'jSave', onclick: saveJournal }, J.editId ? t('j_update') : t('j_save')),
+      J.editId ? h('button', { class: 'btn text', onclick: function () { D.state.journalDraft = emptyJournal(); saveNow(); render(); } }, t('cancel')) : null)
+  ], { id: 'journalForm' });
+  var evInput = h('input', { type: 'text', id: 'evText', placeholder: t('ev_ph'), 'aria-label': t('ev_ph') });
+  var ev = card(t('ev_label'), [h('p', { class: 'small muted' }, t('ev_hint')),
+    h('div', { class: 'row' }, h('div', { class: 'grow' }, evInput), h('button', { class: 'btn', id: 'evAdd', onclick: function () { if (evInput.value.trim()) { addEvidence(evInput.value); render(); } } }, t('add'))),
+    D.records.evidence.length ? h('ul', { class: 'plain', style: 'margin-top:10px' }, D.records.evidence.map(function (e) {
+      return h('li', { class: 'worry' }, h('div', { class: 'row' }, h('span', { class: 'grow' }, e.text),
+        h('button', { class: 'iconbtn', 'aria-label': t('delete'), onclick: function () { if (confirm(t('j_confirm_delete'))) { D.records.evidence = D.records.evidence.filter(function (x) { return x !== e; }); saveNow(); render(); } } }, icon('remove'))),
+        h('div', { class: 'when' }, fmtDate(e.t)));
+    })) : h('p', { class: 'small muted', style: 'margin-top:10px' }, t('ev_none'))], { id: 'evidenceCard' });
+  var past = card(t('j_past'), D.records.journal.length ? D.records.journal.map(function (e) {
+    var rows = [['j_fact', e.fact], ['j_story', e.story], ['j_alt', e.alt], ['j_emotion', e.emotion + (e.intensity !== null && e.intensity !== '' ? ' (' + e.intensity + ')' : '')], ['j_action', e.action]].filter(function (r) { return r[1] && String(r[1]).trim(); });
+    return h('details', { class: 'entry' }, h('summary', {}, h('span', { class: 'small muted' }, fmtDate(e.t) + ', ' + fmtTime(e.t)), h('span', {}, (e.fact || e.story || '').slice(0, 90))),
+      h('dl', {}, rows.map(function (r) { return [h('dt', {}, t(r[0])), h('dd', {}, r[1])]; })),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn ghost', onclick: function () { D.state.journalDraft = { editId: e.id, fact: e.fact, story: e.story, alt: e.alt, emotion: e.emotion, intensity: e.intensity === null ? '' : String(e.intensity), action: e.action }; saveNow(); render(); window.scrollTo(0, 0); } }, t('edit')),
+        h('button', { class: 'btn danger', onclick: function () { if (confirm(t('j_confirm_delete'))) { D.records.journal = D.records.journal.filter(function (x) { return x !== e; }); saveNow(); render(); } } }, t('delete'))));
+  }) : h('p', { class: 'muted' }, t('j_none')));
+  return [form, ev, past];
+}
+function saveJournal() {
+  var J = D.state.journalDraft;
+  if (!['fact', 'story', 'alt', 'emotion', 'action'].some(function (k) { return String(J[k] || '').trim(); })) return;
+  var n = parseInt(J.intensity, 10);
+  var rec = { fact: J.fact.trim(), story: J.story.trim(), alt: J.alt.trim(), emotion: J.emotion.trim(), intensity: isNaN(n) ? null : Math.max(0, Math.min(10, n)), action: J.action.trim() };
+  if (J.editId) { var e = D.records.journal.filter(function (x) { return x.id === J.editId; })[0]; if (e) Object.assign(e, rec); }
+  else D.records.journal.unshift(Object.assign({ id: uid(), t: now() }, rec));
+  D.state.journalDraft = emptyJournal(); saveNow(); render(); toast(t('j_saved'));
+}
+
+// ===================== Week =====================
+function weekView() {
+  var wk = weekKey(now());
+  var wc = D.state.weekChecks[wk] || (D.state.weekChecks[wk] = {});
+  var habits = D.content.habits.filter(function (x) { return x.text; }).map(function (x) {
+    var arr = wc[x.id] || [];
+    var n = Math.max(1, Math.min(7, x.target || 1));
+    var done = 0; for (var i = 0; i < n; i++) if (arr[i]) done++;
+    var boxes = [];
+    for (var j = 0; j < n; j++) (function (j) {
+      boxes.push(h('button', { 'aria-pressed': arr[j] ? 'true' : 'false', 'aria-label': x.text + ' ' + (j + 1), onclick: function () { var a = wc[x.id] || []; a[j] = !a[j]; wc[x.id] = a; saveNow(); render(); } }, arr[j] ? icon('tick') : null));
+    })(j);
+    return h('div', { class: 'habit' }, h('div', { class: 'row' }, h('span', { class: 'grow' }, x.text), h('span', { class: 'small muted' }, t('wk_progress', { d: done, t: n }))), h('div', { class: 'boxes' }, boxes));
+  });
+  var R = D.state.reviewDraft || (D.state.reviewDraft = []);
+  var prompts = D.content.reviewPrompts.map(function (p, i) {
+    var id = 'rv_' + i;
+    var ta = h('textarea', { id: id, oninput: function (e) { R[i] = e.target.value; save(); } }); ta.value = R[i] || '';
+    return [h('label', { class: 'f', for: id }, p), ta];
+  });
+  var kept = D.records.worries.filter(function (w) { return w.status === 'kept' && w.keptAction === 'review' && !w.cleared; });
+  var review = card(t('wk_review'), [kept.length ? h('div', { class: 'due' }, h('strong', {}, t('wk_kept')), h('ul', { class: 'bul' }, kept.map(function (w) { return h('li', {}, w.text); }))) : null,
+    prompts, h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'rvSave', onclick: saveReview }, t('wk_review_save')))], { id: 'reviewCard' });
+  var pastRv = D.records.reviews.length ? card(t('wk_past'), D.records.reviews.map(function (r) {
+    return h('details', { class: 'entry' }, h('summary', {}, fmtDate(r.t)), h('dl', {}, (r.prompts || D.content.reviewPrompts).map(function (p, i) { return r.answers[i] ? [h('dt', {}, p), h('dd', {}, r.answers[i])] : null; })));
+  })) : null;
+  var cp = D.content.checkpoint;
+  var cpNotes = h('textarea', { id: 'cpNotes', oninput: function (e) { D.state.checkpointNotes = e.target.value; save(); } }); cpNotes.value = D.state.checkpointNotes || '';
+  var checkpoint = card(t('cp_label'), [h('p', { class: 'small muted' }, t('cp_hint')),
+    h('ol', { class: 'rules' }, cp.questions.filter(Boolean).map(function (q) { return h('li', {}, q); })),
+    h('label', { class: 'f', for: 'cpDate' }, t('cp_date')), h('input', { type: 'date', id: 'cpDate', value: cp.date || '', onchange: function (e) { cp.date = e.target.value || null; saveNow(); } }),
+    h('label', { class: 'f', for: 'cpNotes' }, t('cp_notes')), cpNotes,
+    h('div', { class: 'row end' }, editLink('checkpoint'))]);
+  return [card(t('wk_habits'), [h('p', { class: 'small muted' }, t('wk_week', { n: parseInt(wk.slice(6), 10) })), habits, h('div', { class: 'row end' }, editLink('habits'))], { id: 'habitsCard' }), review, pastRv, checkpoint];
+}
+function saveReview() {
+  var R = D.state.reviewDraft || [];
+  if (!R.some(function (x) { return x && x.trim(); })) return;
+  D.records.reviews.unshift({ id: uid(), t: now(), answers: D.content.reviewPrompts.map(function (p, i) { return (R[i] || '').trim(); }), prompts: D.content.reviewPrompts.slice() });
+  var wk = weekKey(now()), wc = D.state.weekChecks[wk] || (D.state.weekChecks[wk] = {});
+  D.content.habits.filter(function (x) { return x.isReview; }).forEach(function (x) {
+    var a = wc[x.id] || [], n = Math.max(1, x.target || 1);
+    for (var i = 0; i < n; i++) if (!a[i]) { a[i] = true; break; }
+    wc[x.id] = a;
+  });
+  D.records.worries.forEach(function (w) { if (w.status === 'kept' && w.keptAction === 'review' && !w.cleared) { w.cleared = true; w.reviewedAt = now(); } });
+  D.state.reviewDraft = []; saveNow(); render(); toast(t('wk_review_saved'));
+}
+
+// ===================== Help =====================
+function helpView() {
+  return [
+    card(t('h_quick'), [h('ul', { class: 'bul' }, ['h_q1', 'h_q2', 'h_q3', 'h_q4'].map(function (k) { return h('li', {}, t(k)); })), h('p', { style: 'margin-top:10px' }, t('h_q_then')), h('p', {}, t('h_q_emergency'))], { id: 'getHelp' }),
+    card(t('h_numbers') + ': ' + t('c_' + D.settings.country), numbersList(false), { id: 'numbers' }),
+    card(t('h_why'), [h('ul', { class: 'bul' }, D.content.help.why.filter(Boolean).map(function (x) { return h('li', {}, x); })), h('div', { class: 'row end' }, editLink('why'))]),
+    card(t('h_helps'), [h('ul', { class: 'bul' }, D.content.help.helps.filter(Boolean).map(function (x) { return h('li', {}, x); })), h('div', { class: 'row end' }, editLink('helps'))]),
+    h('p', { class: 'small muted', style: 'margin:18px 4px' }, t('h_disclaimer')),
+    h('a', { class: 'btn ghost block', href: '#settings' }, t('h_settings'))
+  ];
+}
+
+// ===================== Settings =====================
+function seg(options, value, onpick) {
+  return h('div', { class: 'seg', role: 'group' }, options.map(function (o) {
+    return h('button', { 'aria-pressed': String(o[0]) === String(value) ? 'true' : 'false', onclick: function () { onpick(o[0]); } }, o[1]);
+  }));
+}
+function selectField(id, label, options, value, onchange) {
+  return [h('label', { class: 'f', for: id }, label), h('select', { id: id, onchange: function (e) { onchange(e.target.value); } }, options.map(function (o) { return h('option', { value: String(o[0]), selected: String(o[0]) === String(value) }, o[1]); }))];
+}
+function setAndRender(fn) { return function (v) { fn(v); saveNow(); render(); }; }
+function changeLang(v) { D.settings.lang = v; applyStarter(true); }
+function changePack(v) { D.settings.pack = v; applyStarter(true); }
+var EDITORS = ['quotes', 'rules', 'daily', 'once', 'moves', 'habits', 'reviewPrompts', 'checkpoint', 'why', 'helps', 'texts', 'numbers'];
+function settingsView(r) {
+  var sub = r.split('/')[1];
+  if (sub && EDITORS.indexOf(sub) >= 0) return editorView(sub);
+  var S = D.settings;
+  var back = h('div', { class: 'row', style: 'margin-top:6px' }, h('a', { class: 'btn text', href: '#now' }, icon('back'), t('back')));
+  var general = card(t('settings'), [
+    selectField('setLang', t('st_lang'), LANGS, S.lang, setAndRender(changeLang)),
+    !REVIEWED[S.lang] ? h('p', { class: 'small muted' }, t('about_review')) : null,
+    selectField('setCountry', t('st_country'), ['EE', 'BR', 'PT', 'OTHER'].map(function (c) { return [c, t('c_' + c)]; }), S.country, setAndRender(function (v) { S.country = v; })),
+    h('label', { class: 'f', for: 'setName' }, t('st_name')), h('input', { type: 'text', id: 'setName', value: S.name, maxlength: '40', oninput: function (e) { S.name = e.target.value.trim(); save(); } }),
+    h('label', { class: 'f' }, t('st_theme')), seg([['light', t('th_light')], ['dark', t('th_dark')], ['system', t('th_system')]], S.theme, setAndRender(function (v) { S.theme = v; })),
+    h('label', { class: 'f' }, t('st_night')),
+    h('div', { class: 'row' },
+      h('div', { class: 'grow' }, h('label', { class: 'f', for: 'nStart' }, t('st_from')), h('input', { type: 'time', id: 'nStart', value: S.night.start, onchange: function (e) { if (e.target.value) { S.night.start = e.target.value; saveNow(); } } })),
+      h('div', { class: 'grow' }, h('label', { class: 'f', for: 'nEnd' }, t('st_to')), h('input', { type: 'time', id: 'nEnd', value: S.night.end, onchange: function (e) { if (e.target.value) { S.night.end = e.target.value; saveNow(); } } }))),
+    h('label', { class: 'f', for: 'dReset' }, t('st_reset')), h('input', { type: 'time', id: 'dReset', value: S.dailyReset, onchange: function (e) { if (e.target.value) { S.dailyReset = e.target.value; saveNow(); } } }),
+    h('label', { class: 'f' }, t('st_weekstart')), seg([[1, t('monday')], [0, t('sunday')]], S.weekStart, setAndRender(function (v) { S.weekStart = +v; }))
+  ]);
+  var sos = card(t('st_sos'), [
+    h('label', { class: 'f' }, t('st_pattern')), seg([['4,0,6,0', t('pat_46')], ['4,0,7,0', t('pat_47')], ['4,4,4,4', t('pat_box')]], S.sos.pattern.join(','), setAndRender(function (v) { S.sos.pattern = String(v).split(',').map(Number); })),
+    h('label', { class: 'f' }, t('st_breath')), seg([60, 120, 180, 300].map(function (s) { return [s, t('minutes', { n: s / 60 })]; }), S.sos.breathSec, setAndRender(function (v) { S.sos.breathSec = +v; })),
+    h('label', { class: 'f' }, t('st_wave')), seg([5, 10, 15, 20].map(function (m) { return [m, t('minutes', { n: m })]; }), S.sos.waveMin, setAndRender(function (v) { S.sos.waveMin = +v; })),
+    toggle('st_vibrate', S.sos.vibrate, function (v) { S.sos.vibrate = v; }),
+    toggle('st_showrule', S.sos.showRule, function (v) { S.sos.showRule = v; }),
+    toggle('st_showev', S.sos.showEvidence, function (v) { S.sos.showEvidence = v; }),
+    toggle('st_nightline', S.sos.nightLine, function (v) { S.sos.nightLine = v; }),
+    toggle('st_statnc', S.statNoChecking, function (v) { S.statNoChecking = v; })
+  ]);
+  var content = card(t('st_content'), [
+    h('label', { class: 'f' }, t('st_pack')),
+    PACKS.map(function (p) { return h('button', { class: 'pack', 'aria-pressed': S.pack === p ? 'true' : 'false', onclick: function () { changePack(p); saveNow(); render(); } }, h('strong', {}, t('pack_' + p)), h('span', { class: 'small muted' }, t('pack_' + p + '_d'))); }),
+    h('p', { class: 'small muted' }, t('st_pack_note')),
+    h('ul', { class: 'plain' }, EDITORS.map(function (k) { return h('li', {}, h('a', { class: 'btn text', href: '#settings/' + k }, t('ed_' + k))); }))
+  ]);
+  return [back, general, sos, content, dataCard(), aboutCard()];
+}
+function toggle(key, value, set) {
+  return h('label', { class: 'check' }, h('input', { type: 'checkbox', class: 'vh', checked: !!value, onchange: function (e) { set(e.target.checked); saveNow(); } }), h('span', { class: 'box' }, icon('tick')), h('span', { class: 'grow' }, t(key)));
+}
+function aboutCard() {
+  return card(t('st_about'), [h('p', {}, t('about_version', { v: VERSION })), h('p', {}, t('about_privacy')), h('p', {}, t('h_disclaimer')), h('p', { class: 'small muted' }, t('about_licence')),
+    !REVIEWED[D.settings.lang] ? h('p', { class: 'small muted' }, t('about_review')) : null]);
+}
+
+// ===================== editors =====================
+function editorView(k) {
+  var back = h('div', { class: 'row', style: 'margin-top:6px' }, h('a', { class: 'btn text', href: '#settings' }, icon('back'), t('settings')));
+  var body;
+  if (k === 'texts') {
+    var tx = D.content.texts;
+    body = ['sosLabel', 'sosName', 'sosNameMore', 'nightText'].map(function (f) {
+      var ta = h('textarea', { id: 'tx_' + f, oninput: function (e) { tx[f] = e.target.value; markEdited('texts'); } }); ta.value = tx[f] || '';
+      return [h('label', { class: 'f', for: 'tx_' + f }, t('tx_' + f)), ta];
+    });
+  } else {
+    var list = getList(k);
+    var isStr = !PREFIX[k] && k !== 'numbers';
+    body = list.map(function (item, i) {
+      function move(d) { var j = i + d; if (j < 0 || j >= list.length) return; var tmp = list[i]; list[i] = list[j]; list[j] = tmp; markEdited(k); saveNow(); render(); }
+      var tools = h('div', { class: 'tools' },
+        h('button', { class: 'iconbtn', 'aria-label': t('ed_up'), disabled: i === 0 ? true : null, onclick: function () { move(-1); } }, icon('up')),
+        h('button', { class: 'iconbtn', 'aria-label': t('ed_down'), disabled: i === list.length - 1 ? true : null, onclick: function () { move(1); } }, icon('down')),
+        h('button', { class: 'iconbtn', 'aria-label': t('ed_remove'), onclick: function () { list.splice(i, 1); markEdited(k); saveNow(); render(); } }, icon('remove')));
+      if (k === 'numbers') {
+        return h('div', { class: 'ed' }, h('div', { class: 'row' }, h('div', { class: 'grow' },
+          h('input', { type: 'text', value: item.label, placeholder: t('num_label'), 'aria-label': t('num_label'), oninput: function (e) { item.label = e.target.value; save(); } }),
+          h('input', { type: 'tel', value: item.number, placeholder: t('num_number'), 'aria-label': t('num_number'), style: 'margin-top:6px', oninput: function (e) { item.number = e.target.value; save(); } })), tools));
+      }
+      var value = isStr ? item : item.text;
+      var main = h('textarea', { 'aria-label': t('ed_item') + ' ' + (i + 1), rows: '2', oninput: function (e) { if (isStr) list[i] = e.target.value; else item.text = e.target.value; markEdited(k); } });
+      main.value = value || '';
+      var extra = [];
+      if (k === 'daily') extra.push(h('label', { class: 'check' }, h('input', { type: 'checkbox', class: 'vh', checked: !!item.noChecking, onchange: function (e) { item.noChecking = e.target.checked; markEdited(k); } }), h('span', { class: 'box' }, icon('tick')), h('span', { class: 'small' }, t('ed_nocheck'))));
+      if (k === 'once') { var ht = h('textarea', { rows: '2', placeholder: t('ed_howto'), 'aria-label': t('ed_howto'), style: 'margin-top:6px', oninput: function (e) { item.howTo = e.target.value; markEdited(k); } }); ht.value = item.howTo || ''; extra.push(ht); }
+      if (k === 'habits') {
+        extra.push(h('div', { class: 'row', style: 'margin-top:6px' }, h('label', { class: 'small', for: 'tg_' + item.id }, t('ed_target')),
+          h('input', { type: 'number', id: 'tg_' + item.id, min: '1', max: '7', value: String(item.target || 1), style: 'width:6rem', onchange: function (e) { item.target = Math.max(1, Math.min(7, parseInt(e.target.value, 10) || 1)); markEdited(k); } })));
+        extra.push(h('label', { class: 'check' }, h('input', { type: 'checkbox', class: 'vh', checked: !!item.isReview, onchange: function (e) { item.isReview = e.target.checked; markEdited(k); } }), h('span', { class: 'box' }, icon('tick')), h('span', { class: 'small' }, t('ed_isreview'))));
+      }
+      return h('div', { class: 'ed' }, h('div', { class: 'row' }, h('div', { class: 'grow' }, main), tools), extra);
+    });
+    body.push(h('div', { class: 'actions' },
+      h('button', { class: 'btn ghost', id: 'edAdd', onclick: function () {
+        var item = isStr ? '' : k === 'numbers' ? { id: uid(), label: '', number: '' } : { id: uid(), text: '' };
+        if (k === 'daily') item.noChecking = false; if (k === 'once') item.howTo = ''; if (k === 'habits') { item.target = 1; item.isReview = false; }
+        list.push(item); markEdited(k); saveNow(); render();
+        var tas = document.querySelectorAll('.ed textarea, .ed input[type="text"]'); if (tas.length) tas[tas.length - (k === 'once' ? 2 : 1)].focus();
+      } }, t('ed_add'))));
+  }
+  var reset = k !== 'numbers' ? h('button', { class: 'btn danger', id: 'edReset', onclick: function () {
+    if (!confirm(t('ed_reset_confirm'))) return;
+    setList(k, starterList(k, D.settings.lang, D.settings.pack)); D.content.meta.edited[k] = false; saveNow(); render();
+  } }, t('ed_reset')) : null;
+  return [back, card(t('ed_' + k), [body, reset ? h('div', { class: 'actions' }, reset) : null], { id: 'editor' })];
+}
+
+// ===================== data =====================
+function exportText() { saveNow(); return JSON.stringify(D, null, 2); }
+function dataCard() {
+  var kids = [h('p', { class: 'small' }, t('data_note')),
+    h('div', { class: 'actions' },
+      h('button', { class: 'btn', id: 'exportBtn', onclick: doExport }, t('data_export')),
+      h('button', { class: 'btn ghost', id: 'importBtn', onclick: function () { ui.importOpen = !ui.importOpen; render(); } }, t('data_import')),
+      h('button', { class: 'btn danger', id: 'eraseBtn', onclick: doErase }, t('data_erase')))];
+  if (ui.exportText) { var ta = h('textarea', { id: 'exportOut', readonly: true, rows: '6' }); ta.value = ui.exportText; kids.push(h('p', { class: 'small', style: 'margin-top:12px' }, t('export_android')), ta); }
+  if (ui.importOpen) {
+    var ta2 = h('textarea', { id: 'importIn', placeholder: t('import_ph'), 'aria-label': t('import_ph'), rows: '6', oninput: function (e) { ui.importText = e.target.value; ui.importParsed = null; } }); ta2.value = ui.importText || '';
+    var file = h('input', { type: 'file', accept: '.json,application/json,text/plain', 'aria-label': t('import_file'), onchange: function (e) { var f = e.target.files[0]; if (!f) return; f.text().then(function (txt) { ui.importText = txt; checkImport(); }); } });
+    kids.push(h('div', { style: 'margin-top:12px' }, ta2, ANDROID ? null : h('label', { class: 'f' }, t('import_file')), ANDROID ? null : file,
+      h('div', { class: 'actions' }, h('button', { class: 'btn ghost', id: 'importCheck', onclick: checkImport }, t('import_check')))));
+    if (ui.importParsed === false) kids.push(h('p', { class: 'banner' }, t('import_bad')));
+    if (ui.importParsed) {
+      var p = ui.importParsed.records;
+      kids.push(h('div', { class: 'due' }, h('p', {}, t('import_preview', { u: p.urges.length, j: p.journal.length, e: p.evidence.length, w: p.worries.length })),
+        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'importReplace', onclick: function () { doImport(false); } }, t('import_replace')), h('button', { class: 'btn ghost', id: 'importMerge', onclick: function () { doImport(true); } }, t('import_merge')))));
+    }
+  }
+  return card(t('st_data'), kids, { id: 'dataCard' });
+}
+function doExport() {
+  var txt = exportText();
+  if (ANDROID) {
+    ui.exportText = txt;
+    try { if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(function () {}); } catch (e) {}
+    render(); var el = document.getElementById('exportOut'); if (el) { el.focus(); el.select(); try { document.execCommand('copy'); } catch (e) {} }
+    return;
+  }
+  var a = h('a', { href: URL.createObjectURL(new Blob([txt], { type: 'application/json' })), download: 'steady-' + dayKey(now()) + '.json' });
+  document.body.appendChild(a); a.click(); a.remove(); toast(t('export_done'));
+}
+function checkImport() {
+  var parsed = null;
+  try { parsed = migrate(JSON.parse(ui.importText || '')); } catch (e) { parsed = null; }
+  if (parsed && !(parsed.records && Array.isArray(parsed.records.urges))) parsed = null;
+  ui.importParsed = parsed || false; render();
+}
+function doImport(merge) {
+  var inc = ui.importParsed; if (!inc) return;
+  if (!merge) D = inc;
+  else {
+    Object.keys(D.records).forEach(function (k) {
+      var have = {}; D.records[k].forEach(function (r) { have[r.id] = 1; });
+      (inc.records[k] || []).forEach(function (r) { if (!have[r.id]) D.records[k].push(r); });
+    });
+    ['quotes', 'rules', 'daily', 'once', 'moves', 'habits'].forEach(function (k) {
+      var list = getList(k), have = {}; list.forEach(function (x) { have[x.id] = 1; });
+      var src = inc.content[k] || []; src.forEach(function (x) { if (!have[x.id]) { list.push(x); D.content.meta.edited[k] = true; } });
+    });
+    Object.keys(inc.state.dailyChecks || {}).forEach(function (d) { D.state.dailyChecks[d] = Object.assign({}, inc.state.dailyChecks[d], D.state.dailyChecks[d] || {}); });
+    Object.keys(inc.state.weekChecks || {}).forEach(function (w) { if (!D.state.weekChecks[w]) D.state.weekChecks[w] = inc.state.weekChecks[w]; });
+    Object.keys(inc.state.onceDone || {}).forEach(function (o) { if (inc.state.onceDone[o]) D.state.onceDone[o] = true; });
+  }
+  ui.importOpen = false; ui.importText = ''; ui.importParsed = null;
+  saveNow(); render(); toast(t('import_done'));
+}
+function doErase() {
+  if (!confirm(t('erase_1'))) return;
+  if (!confirm(t('erase_2'))) return;
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  var lang = D.settings.lang;
+  freshDoc(); D.settings.lang = lang; applyStarter(false);
+  ui = { pulse: false, offerEvidence: null, worryYes: {}, lastSummary: null, importText: '', importParsed: null, exportText: null, ob: 0, sig: '' };
+  saveNow(); location.hash = '#now'; render(); toast(t('erased'));
+}
+
+// ===================== onboarding =====================
+function onboardingView() {
+  var S = D.settings, step = ui.ob;
+  function finish(show) { S.onboarded = true; ui.pulse = !!show; saveNow(); if (route() !== 'now') location.hash = '#now'; render(true); if (show) { var b = document.getElementById('sosBtn'); if (b) b.focus(); } }
+  var dots = h('div', { class: 'dots', 'aria-hidden': 'true' }, [0, 1, 2, 3].map(function (i) { return h('span', { class: i === step ? 'on' : '' }); }));
+  var next = function () { ui.ob = step + 1; saveNow(); render(); };
+  var skip = h('button', { class: 'btn text', id: 'obSkip', onclick: function () { finish(false); } }, t('ob_skip'));
+  var body;
+  if (step === 0) body = [h('h1', {}, t('ob_welcome_title')), h('p', {}, t('ob_welcome_body')), h('p', { class: 'small muted' }, t('h_disclaimer')),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'obNext', onclick: next }, t('ob_start')), skip)];
+  if (step === 1) body = [h('h1', {}, t('ob_lang_title')), h('p', { class: 'muted' }, t('ob_lang_body')),
+    selectField('obLang', t('st_lang'), LANGS, S.lang, setAndRender(changeLang)),
+    selectField('obCountry', t('st_country'), ['EE', 'BR', 'PT', 'OTHER'].map(function (c) { return [c, t('c_' + c)]; }), S.country, setAndRender(function (v) { S.country = v; })),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'obNext', onclick: next }, t('next')), skip)];
+  if (step === 2) body = [h('h1', {}, t('ob_pack_title')), h('p', { class: 'muted' }, t('ob_pack_body')),
+    PACKS.map(function (p) { return h('button', { class: 'pack', 'data-pack': p, 'aria-pressed': S.pack === p ? 'true' : 'false', onclick: function () { changePack(p); saveNow(); render(); } }, h('strong', {}, t('pack_' + p)), h('span', { class: 'small muted' }, t('pack_' + p + '_d'))); }),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'obNext', onclick: next }, t('next')), skip)];
+  if (step === 3) body = [h('h1', {}, t('ob_night_title')), h('p', {}, t('ob_night_body')),
+    h('div', { class: 'row' },
+      h('div', { class: 'grow' }, h('label', { class: 'f', for: 'obStart' }, t('st_from')), h('input', { type: 'time', id: 'obStart', value: S.night.start, onchange: function (e) { if (e.target.value) { S.night.start = e.target.value; saveNow(); } } })),
+      h('div', { class: 'grow' }, h('label', { class: 'f', for: 'obEnd' }, t('st_to')), h('input', { type: 'time', id: 'obEnd', value: S.night.end, onchange: function (e) { if (e.target.value) { S.night.end = e.target.value; saveNow(); } } }))),
+    h('p', { style: 'margin-top:14px' }, t('ob_tour')),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'obFinish', onclick: function () { finish(false); } }, t('ob_finish')), h('button', { class: 'btn ghost', id: 'obShow', onclick: function () { finish(true); } }, t('ob_show')))];
+  return h('div', { class: 'ob' }, h('div', { class: 'brand', style: 'font-family:var(--serif);font-size:1.4rem;margin-bottom:18px' }, 'Steady'), body, dots);
+}
+
+// ===================== start =====================
+window.SteadyDebug = {
+  missingKeys: function () {
+    var out = [];
+    Object.keys(STR).forEach(function (l) { Object.keys(STR.en).forEach(function (k) { if (STR[l][k] === undefined) out.push(l + ':' + k); }); Object.keys(STR[l]).forEach(function (k) { if (STR.en[k] === undefined) out.push('extra ' + l + ':' + k); }); });
+    return out;
+  },
+  version: VERSION
+};
+load();
+if (!storageOK) console.info('Steady: storage unavailable, running in memory');
+render();
+if ('serviceWorker' in navigator && window.isSecureContext && !ANDROID) navigator.serviceWorker.register('sw.js').catch(function () {});
+})();
+</script>
+</body>
+</html>

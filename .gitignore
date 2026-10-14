@@ -1,0 +1,10 @@
+tests/shots/
+__pycache__/
+dist/
+*.jks
+*.keystore
+keystore*
+KEYSTORE*
+android/assets/index.html
+icon-144-launcher.png
+android/build/
