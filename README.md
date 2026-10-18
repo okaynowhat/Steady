@@ -36,6 +36,10 @@ KS=/path/steady-release.jks KS_PASS=... TOOLS=/dir/with/jars ./android/build.sh
 
 `build.sh` needs Java, `apktool.jar` (v2.10.0) and `uber-apk-signer.jar` (v1.3.0) from their GitHub releases. The signing keystore is not in this repository and never should be.
 
+## Role in Oma
+
+Decided 2026-10-18 (D22): Steady is the **respond** app of the Oma line, "calm tools you own". EQMaster watches vitals and offers a breathing reset; when that is not enough, it can open Steady's SOS flow. Clear Seeing is the daily meditation practice. Steady always works on its own too, with or without the other two.
+
 ## Status
 
 1.0.0, 2026-10-14. All 15 automated checks pass at 360 and 390 px, light and dark, in all three languages, including a mocked clock for the daily reset and the week rollover, an offline reload and a run with storage blocked.
