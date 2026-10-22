@@ -1,6 +1,7 @@
 """Automated checks from SPEC.md section 15. Run: CHROME=/path/to/chrome python3 tests/e2e.py"""
 import json, os, re, subprocess, sys, time, traceback
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright, expect
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +32,8 @@ def new_page(b, vp=(390, 844), clock=None, init=None, scheme='light'):
     pg.on('console', lambda m: pg.errors.append(f'console {m.type}: {m.text}') if m.type in ('error', 'warning') else None)
     pg.on('request', lambda r: pg.requests.append(r.url))
     if init: pg.add_init_script(init)
-    if clock: pg.clock.install(time=clock)
+    # clock times are Tallinn wall-clock times, whatever the machine's own time zone (CI runs in UTC)
+    if clock: pg.clock.install(time=clock.replace(tzinfo=ZoneInfo(TZ)) if clock.tzinfo is None else clock)
     return ctx, pg
 
 def onboard(pg, pack='relationship', show=False):

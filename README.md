@@ -27,6 +27,8 @@ This is the generic, shareable edition built from `SPEC.md`. It contains no pers
 | `HELP-NUMBERS.md` | Help numbers with sources and the date checked |
 | `REUSE.toml`, `LICENSES/` | The licence of every file and the licence texts |
 | `TRADEMARKS.md`, `CONTRIBUTING.md` | Use of the name and icons, and the contributor agreement |
+| `CLAUDE.md` | Ground rules for future build sessions |
+| `.github/workflows/ci.yml` | CI: `reuse lint`, the character check and `tests/e2e.py` |
 
 ## Run, test, build
 
@@ -39,6 +41,8 @@ KS=/path/steady-release.jks KS_PASS=... TOOLS=/dir/with/jars ./android/build.sh
 `build.sh` needs Java, `apktool.jar` (v2.10.0) and `uber-apk-signer.jar` (v1.3.0) from their GitHub releases. The signing keystore is not in this repository and never should be.
 
 ## Status
+
+1.0.1, 2026-10-22. The About screen states the licences (GPL-3.0-or-later, starter texts also CC BY-SA 4.0, name and icons not covered). A CI workflow runs `reuse lint`, a character check and all 15 browser checks on every push and pull request. The test clocks now use Tallinn time on any machine.
 
 1.0.0, 2026-10-14. All 15 automated checks pass at 360 and 390 px, light and dark, in all three languages, including a mocked clock for the daily reset and the week rollover, an offline reload and a run with storage blocked.
 

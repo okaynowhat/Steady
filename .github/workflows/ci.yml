@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Licence information for every file (REUSE)
+        run: pip install --quiet reuse && reuse lint
+
+      - name: No em dashes, en dashes, ellipses or middle dots in the app and docs
+        run: |
+          # U+2014 em dash, U+2013 en dash, U+2026 ellipsis, U+00B7 middle dot
+          if LC_ALL=C.UTF-8 grep -n -P '\x{2014}|\x{2013}|\x{2026}|\x{00B7}' index.html *.md; then
+            echo "The lines above contain an em dash, en dash, ellipsis or middle dot. Use a comma, colon or full stop instead."
+            exit 1
+          fi
+
+      - name: Install Playwright and Chromium
+        run: |
+          pip install --quiet playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
+
+      - name: End-to-end checks (tests/e2e.py)
+        run: python3 tests/e2e.py
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: tests/shots/
+          if-no-files-found: ignore
