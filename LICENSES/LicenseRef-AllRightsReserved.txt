@@ -1,0 +1,6 @@
+All rights reserved.
+
+Copyright 2026 okaynowhat (https://github.com/okaynowhat). The files marked with this licence (the website's text,
+design and screenshots, and the app's name, logo and icons) are not licensed for reuse. They may be shown unchanged
+when linking to or writing about the project. Forks of the software must use their own name, logo and icons; see
+TRADEMARKS.md.

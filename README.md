@@ -25,6 +25,8 @@ This is the generic, shareable edition built from `SPEC.md`. It contains no pers
 | `SPEC.md` | The brief this was built from |
 | `DECISIONS.md` | Every choice the spec left open, with reasons |
 | `HELP-NUMBERS.md` | Help numbers with sources and the date checked |
+| `REUSE.toml`, `LICENSES/` | The licence of every file and the licence texts |
+| `TRADEMARKS.md`, `CONTRIBUTING.md` | Use of the name and icons, and the contributor agreement |
 
 ## Run, test, build
 
@@ -47,4 +49,9 @@ Before sharing it widely:
 
 ## Licence
 
-GPL-3.0. See `LICENSE`.
+Free software. Each file says which licence covers it in `REUSE.toml` (REUSE standard, checked with `reuse lint`):
+
+- **Code:** GPL-3.0-or-later, including `index.html`. See `LICENSE`.
+- **Starter texts:** the quotes, rules, checklists and other starter lists inside `index.html` may also be reused under CC BY-SA 4.0.
+- **Documentation:** CC BY-SA 4.0. **Help numbers** (`HELP-NUMBERS.md`): CC BY 4.0.
+- **The name, logo and icons** are not licensed for reuse; see `TRADEMARKS.md`. Contributions come with the agreement in `CONTRIBUTING.md`.
